@@ -63,142 +63,122 @@ import "./styles.css";
 
 const subjects = [
   {
-    id: "research",
-    name: "Research Methods",
-    code: "RES 201",
+    id: "understanding-self",
+    name: "Understanding the Self",
+    code: "Required course",
     color: "violet",
     icon: "⌁",
-    progress: 62,
-    next: "Sampling & bias",
-    lessons: 12,
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
   },
   {
-    id: "human-computer",
-    name: "Human–Computer Interaction",
-    code: "CS 204",
+    id: "philippine-history",
+    name: "Readings in Philippine History",
+    code: "Required course",
     color: "mint",
     icon: "⌘",
-    progress: 38,
-    next: "Affordances",
-    lessons: 9,
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
+  },
+  {
+    id: "contemporary-world",
+    name: "The Contemporary World",
+    code: "Required course",
+    color: "coral",
+    icon: "◌",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
+  },
+  {
+    id: "science-technology-society",
+    name: "Science, Technology, and Society",
+    code: "Required course",
+    color: "violet",
+    icon: "S",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
+  },
+  {
+    id: "mathematics-modern-world",
+    name: "Mathematics in the Modern World",
+    code: "Required course",
+    color: "mint",
+    icon: "M",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
+  },
+  {
+    id: "jose-rizal",
+    name: "Life and Works of Jose Rizal",
+    code: "Required course",
+    color: "coral",
+    icon: "R",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
+  },
+  {
+    id: "purposive-communication",
+    name: "Purposive Communication",
+    code: "Required course",
+    color: "violet",
+    icon: "P",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
+  },
+  {
+    id: "art-appreciation",
+    name: "Art Appreciation",
+    code: "Required course",
+    color: "mint",
+    icon: "A",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
   },
   {
     id: "ethics",
-    name: "Technology & Society",
-    code: "HUM 115",
+    name: "Ethics",
+    code: "Required course",
     color: "coral",
-    icon: "◌",
-    progress: 24,
-    next: "Who gets to decide?",
-    lessons: 7,
+    icon: "E",
+    progress: 0,
+    next: "Content not generated yet",
+    lessons: 0,
   },
 ];
 
-const units = [
-  {
-    id: "question",
-    subjectId: "research",
-    title: "From curiosity to question",
-    label: "Unit 1",
-    progress: 100,
-    lessons: 4,
-    duration: "42 min",
-    state: "complete",
-  },
-  {
-    id: "evidence",
-    subjectId: "research",
-    title: "Evidence you can trust",
-    label: "Unit 2",
-    progress: 60,
-    lessons: 5,
-    duration: "58 min",
-    state: "current",
-  },
-  {
-    id: "analysis",
-    subjectId: "research",
-    title: "Making sense of patterns",
-    label: "Unit 3",
-    progress: 0,
-    lessons: 3,
-    duration: "35 min",
-    state: "locked",
-  },
-  {
-    id: "interaction-basics",
-    subjectId: "human-computer",
-    title: "Designing for action",
-    label: "Unit 1",
-    progress: 38,
-    lessons: 1,
-    duration: "9 min",
-    state: "current",
-  },
-  {
-    id: "power-and-choices",
-    subjectId: "ethics",
-    title: "Power and participation",
-    label: "Unit 1",
-    progress: 24,
-    lessons: 1,
-    duration: "10 min",
-    state: "current",
-  },
-];
+type CourseUnit = {
+  id: string;
+  subjectId: string;
+  title: string;
+  label: string;
+  progress: number;
+  lessons: number;
+  duration: string;
+  state: "complete" | "current" | "locked";
+};
 
-const lessons = [
-  {
-    id: "sampling-bias",
-    unitId: "evidence",
-    title: "Sampling & bias",
-    eyebrow: "Lesson 2 of 5",
-    duration: "8 min",
-    state: "in-progress",
-    progress: 68,
-    outcome: "Recognize how a sample can quietly shape a conclusion.",
-  },
-  {
-    id: "operationalize",
-    unitId: "evidence",
-    title: "Operationalize the idea",
-    eyebrow: "Lesson 1 of 5",
-    duration: "7 min",
-    state: "practiced",
-    progress: 100,
-    outcome: "Turn a broad idea into something you can actually observe.",
-  },
-  {
-    id: "correlation",
-    unitId: "evidence",
-    title: "Correlation is not causation",
-    eyebrow: "Lesson 3 of 5",
-    duration: "10 min",
-    state: "not-started",
-    progress: 0,
-    outcome: "Separate a useful pattern from a causal claim.",
-  },
-  {
-    id: "affordances",
-    unitId: "interaction-basics",
-    title: "Affordances",
-    eyebrow: "Lesson 1 of 4",
-    duration: "9 min",
-    state: "not-started",
-    progress: 0,
-    outcome: "Spot the cues that help people understand what to do next.",
-  },
-  {
-    id: "who-decides",
-    unitId: "power-and-choices",
-    title: "Who gets to decide?",
-    eyebrow: "Lesson 1 of 1",
-    duration: "10 min",
-    state: "not-started",
-    progress: 0,
-    outcome: "Notice how technology choices distribute voice, access, and responsibility.",
-  },
-];
+type CourseLesson = {
+  id: string;
+  unitId: string;
+  title: string;
+  eyebrow: string;
+  duration: string;
+  state: "in-progress" | "practiced" | "not-started";
+  progress: number;
+  outcome: string;
+};
+
+const units: CourseUnit[] = [];
+
+const lessons: CourseLesson[] = [];
 
 type PracticeSelection = {
   scope: PracticeScope;
@@ -311,36 +291,11 @@ const defaultProfile: DemoProfile = {
   email: "jamie@example.com",
   displayName: "Jamie Santos",
   term: "August–December 2026",
-  subject: "Research Methods",
+  subject: "Understanding the Self",
   verified: true,
 };
 
-const defaultTasks: PlannerTask[] = [
-  {
-    id: "task-evidence",
-    title: "Review unit: Evidence you can trust",
-    subject: "Research Methods",
-    minutes: 20,
-    due: "Today",
-    done: false,
-  },
-  {
-    id: "task-affordances",
-    title: "Read: Affordances",
-    subject: "Human–Computer Interaction",
-    minutes: 9,
-    due: "Tomorrow",
-    done: false,
-  },
-  {
-    id: "task-retrieval",
-    title: "Write a retrieval note",
-    subject: "Technology & Society",
-    minutes: 10,
-    due: "Friday",
-    done: true,
-  },
-];
+const defaultTasks: PlannerTask[] = [];
 
 function getProfile() {
   return readStored<DemoProfile>("aralivo-profile", defaultProfile);
@@ -399,6 +354,7 @@ function getElapsedSeconds(session: FocusSession, now = Date.now()) {
 }
 
 function App() {
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
@@ -407,23 +363,41 @@ function App() {
       return;
     }
     let mounted = true;
+    const syncAndRoute = async (sessionUser: User) => {
+      const profile = await syncProfile(sessionUser);
+      const path = window.location.pathname;
+      const isAppSurface = [
+        "/today",
+        "/planner",
+        "/subjects",
+        "/practice",
+        "/flashcards",
+        "/focus",
+        "/resources",
+        "/receipts",
+        "/settings",
+      ].some((route) => path === route || path.startsWith(`${route}/`));
+      if (mounted && isAppSurface && profile.subject !== "Understanding the Self") {
+        navigate("/onboarding", { replace: true });
+      }
+    };
     void supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return;
       setUser(data.session?.user ?? null);
       setAuthState(data.session ? "authenticated" : "unauthenticated");
-      if (data.session) void syncProfile(data.session.user);
+      if (data.session) void syncAndRoute(data.session.user);
     });
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       setUser(session?.user ?? null);
       setAuthState(session ? "authenticated" : "unauthenticated");
-      if (session) window.setTimeout(() => void syncProfile(session.user), 0);
+      if (session) window.setTimeout(() => void syncAndRoute(session.user), 0);
     });
     return () => {
       mounted = false;
       data.subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signOut = async () => {
     await supabase?.auth.signOut();
@@ -589,7 +563,7 @@ function Landing() {
                 <br />
                 next step.
               </strong>
-              <small>8 min · Research Methods</small>
+              <small>Your first course · Content pending</small>
               <div className="art-progress">
                 <span />
               </div>
@@ -735,8 +709,10 @@ function AuthPage({ mode }: { mode: AuthMode }) {
       } else {
         const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
-        if (data.user) await syncProfile(data.user);
-        navigate("/today");
+        if (data.user) {
+          const profile = await syncProfile(data.user);
+          navigate(profile.subject === "Understanding the Self" ? "/today" : "/onboarding");
+        }
       }
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "We couldn’t complete that request.");
@@ -771,6 +747,15 @@ function AuthPage({ mode }: { mode: AuthMode }) {
               if (!supabase) return;
               setError("");
               setSubmitting(true);
+              if (mode === "sign-up") {
+                writeStored("aralivo-pending-signup", {
+                  email: email || defaultProfile.email,
+                  displayName: name.trim() || defaultProfile.displayName,
+                  term: defaultProfile.term,
+                  subject: defaultProfile.subject,
+                  verified: false,
+                } satisfies DemoProfile);
+              }
               const { error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: { redirectTo: `${appUrl()}/auth/callback` },
@@ -1049,8 +1034,9 @@ function OnboardingPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [term, setTerm] = useState("August–December 2026");
-  const [subject, setSubject] = useState("Research Methods");
-  const [action, setAction] = useState("Start with a lesson");
+  const [subject, setSubject] = useState("Understanding the Self");
+  const [action, setAction] = useState("Explore my course");
+  const [subjectError, setSubjectError] = useState("");
   const steps = [
     {
       title: "Choose a term",
@@ -1063,20 +1049,27 @@ function OnboardingPage() {
       ),
     },
     {
-      title: "Add a subject",
-      text: "Start with the catalog or make a private subject from scratch.",
+      title: "Choose a first course",
+      text: "Choose the course you will use to test generated Aralivo content.",
       content: (
         <>
           <label className="field">
-            <span>Subject name</span>
-            <input value={subject} onChange={(event) => setSubject(event.target.value)} />
+            <span>First course</span>
+            <select
+              value={subject}
+              onChange={(event) => {
+                setSubject(event.target.value);
+                setSubjectError("");
+              }}
+              aria-describedby="onboarding-course-note"
+            >
+              {subjects.map((course) => <option value={course.name} key={course.id}>{course.name}</option>)}
+            </select>
           </label>
-          <button className="button button-quiet button-full">
-            <Search size={16} /> Search catalog
-          </button>
-          <p className="muted-copy onboarding-fallback">
-            <Plus size={14} /> Manual subject creation is always available.
+          <p className="muted-copy onboarding-fallback" id="onboarding-course-note">
+            Understanding the Self is required for this setup so generated lessons can be tested against this account.
           </p>
+          {subjectError && <p className="field-error" role="alert">{subjectError}</p>}
         </>
       ),
     },
@@ -1085,17 +1078,15 @@ function OnboardingPage() {
       text: "A clear first step makes returning easier.",
       content: (
         <div className="onboarding-actions">
-          {["Start with a lesson", "Review flashcards", "Plan a focus session"].map((item) => (
+          {["Explore my course", "Plan a focus session"].map((item) => (
             <button
               key={item}
               className={action === item ? "onboarding-action active" : "onboarding-action"}
               onClick={() => setAction(item)}
             >
               <span>
-                {item === "Start with a lesson" ? (
+                {item === "Explore my course" ? (
                   <BookOpen size={17} />
-                ) : item === "Review flashcards" ? (
-                  <RotateCcw size={17} />
                 ) : (
                   <Focus size={17} />
                 )}
@@ -1113,7 +1104,7 @@ function OnboardingPage() {
     const session = supabase ? (await supabase.auth.getSession()).data.session : null;
     if (session?.user && supabase) {
       const profile = await syncProfile(session.user, { term, subject, verified: true });
-      await supabase.from("profiles").upsert({
+      const { error: profileError } = await supabase.from("profiles").upsert({
         id: session.user.id,
         email: session.user.email,
         display_name: profile.displayName,
@@ -1121,11 +1112,23 @@ function OnboardingPage() {
         primary_subject: subject,
         verified: true,
       });
+      if (profileError) {
+        setSubjectError(profileError.message);
+        return;
+      }
     } else {
       writeStored("aralivo-profile", { ...pending, term, subject, verified: true });
     }
     window.localStorage.removeItem("aralivo-pending-signup");
     navigate("/today", { replace: true });
+  };
+  const continueOnboarding = () => {
+    if (step === 1 && subject !== "Understanding the Self") {
+      setSubjectError("Choose Understanding the Self to continue this setup.");
+      return;
+    }
+    if (step < 2) setStep((value) => value + 1);
+    else void finish();
   };
   return (
     <div className="auth-page onboarding-page">
@@ -1154,7 +1157,7 @@ function OnboardingPage() {
           </button>
           <button
             className="button button-primary"
-            onClick={() => (step < 2 ? setStep((value) => value + 1) : finish())}
+            onClick={continueOnboarding}
           >
             {step < 2 ? "Continue" : "Open Today"} <ArrowRight size={16} />
           </button>
@@ -1237,9 +1240,14 @@ function CallbackPage() {
       if (!active || completed || !session) return;
       completed = true;
       if (timeoutId) window.clearTimeout(timeoutId);
-      await syncProfile(session.user);
+      const profile = await syncProfile(session.user);
       const isNewSignup = Boolean(readStored<DemoProfile | null>("aralivo-pending-signup", null));
-      if (active) navigate(isNewSignup ? "/onboarding" : "/today", { replace: true });
+      if (active) {
+        navigate(
+          isNewSignup || profile.subject !== "Understanding the Self" ? "/onboarding" : "/today",
+          { replace: true },
+        );
+      }
     };
     const complete = async () => {
       if (!supabase) {
@@ -1323,7 +1331,7 @@ function AppShell({ onSignOut }: { onSignOut: () => void }) {
   const nav = [
     { to: "/today", label: "Today", icon: Home },
     { to: "/planner", label: "Planner", icon: CalendarDays },
-    { to: "/subjects", label: "Subjects", icon: BookOpen },
+    { to: "/subjects", label: "Courses", icon: BookOpen },
     { to: "/practice", label: "Practice", icon: Target },
     { to: "/flashcards", label: "Flashcards", icon: RotateCcw },
     { to: "/focus", label: "Focus", icon: Focus },
@@ -1435,7 +1443,7 @@ function CurrentPage() {
   const labels: Record<string, string> = {
     "/today": "Today",
     "/planner": "Planner",
-    "/subjects": "Subjects",
+    "/subjects": "Courses",
     "/practice": "Practice",
     "/flashcards": "Flashcards",
     "/focus": "Focus",
@@ -1589,30 +1597,27 @@ function TodayPage() {
           <div className="pebble-top">
             <div>
               <p className="eyebrow">Your next useful action</p>
-              <Pill tone="mint">8 minutes</Pill>
+              <Pill tone="violet">Content pending</Pill>
             </div>
             <button className="icon-button" aria-label="More next action options">
               <MoreHorizontal size={20} />
             </button>
           </div>
           <h2>
-            Continue with <em>Sampling & bias</em>
+            Your first course is ready
           </h2>
-          <p>See how the way you choose evidence can quietly shape what you find.</p>
+          <p>Understanding the Self is selected for your account. Lessons will appear here after they are generated and published.</p>
           <div className="pebble-meta">
             <span>
-              <BookOpen size={15} /> Research Methods
+              <BookOpen size={15} /> Understanding the Self
             </span>
             <span>
-              <Target size={15} /> Lesson 2 of 5
+              <Target size={15} /> No lesson published yet
             </span>
           </div>
           <div className="pebble-actions">
-            <button
-              className="button button-dark"
-              onClick={() => navigate("/lessons/sampling-bias")}
-            >
-              Continue lesson <ArrowRight size={17} />
+            <button className="button button-dark" onClick={() => navigate("/subjects/understanding-self")}>
+              Open course <ArrowRight size={17} />
             </button>
             <button className="button button-ghost" onClick={() => navigate("/focus")}>
               Focus on this
@@ -1657,35 +1662,10 @@ function TodayPage() {
           </div>
           <SectionTitle eyebrow="A little momentum" title="Recent progress" />
           <Card className="recent-card">
-            <div className="timeline-item">
-              <span className="timeline-icon mint">
-                <CheckCircle2 size={17} />
-              </span>
-              <div>
-                <strong>Operationalize the idea</strong>
-                <p>Human–Computer Interaction · Practiced</p>
-              </div>
-              <span className="timeline-time">Yesterday</span>
-            </div>
-            <div className="timeline-item">
-              <span className="timeline-icon violet">
-                <Zap size={17} />
-              </span>
-              <div>
-                <strong>Added 35 XP</strong>
-                <p>Lesson section + practice set</p>
-              </div>
-              <span className="timeline-time">Tue</span>
-            </div>
-            <div className="timeline-item">
-              <span className="timeline-icon coral">
-                <Focus size={17} />
-              </span>
-              <div>
-                <strong>25 minute focus session</strong>
-                <p>Research Methods · Completed</p>
-              </div>
-              <span className="timeline-time">Mon</span>
+            <div className="empty-inline">
+              <BookOpen size={22} />
+              <strong>Your first lesson will show here.</strong>
+              <p>There is no demo progress in this account. Start once your generated content is published.</p>
             </div>
           </Card>
         </div>
@@ -1718,25 +1698,10 @@ function TodayPage() {
                 </button>
               }
             />
-            <div className="due-item">
-              <span className="due-icon">
-                <RotateCcw size={15} />
-              </span>
-              <div>
-                <strong>3 flashcards</strong>
-                <p>Research Methods</p>
-              </div>
-              <span className="due-time">Today</span>
-            </div>
-            <div className="due-item">
-              <span className="due-icon">
-                <CalendarDays size={15} />
-              </span>
-              <div>
-                <strong>Review unit evidence</strong>
-                <p>Estimated 20 min</p>
-              </div>
-              <span className="due-time">Fri</span>
+            <div className="empty-inline compact-empty">
+              <CalendarDays size={22} />
+              <strong>Nothing due yet.</strong>
+              <p>Generated lessons and reviews will appear here.</p>
             </div>
             <Link className="text-link" to="/planner">
               Open planner <ArrowRight size={15} />
@@ -1849,12 +1814,36 @@ function SubjectsPage() {
   );
 }
 
+function ContentUnavailablePage({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="page-stack content-empty-page">
+      <PageHeader eyebrow={eyebrow} title={title} description={description} />
+      <Card className="empty-state content-empty-card">
+        <div className="empty-icon"><BookOpen size={23} /></div>
+        <Pill tone="violet">Not published yet</Pill>
+        <h2>There is nothing to open here yet</h2>
+        <p>Generate and validate the content first. This page will become available when the published files are ready.</p>
+        <div className="summary-actions">
+          <Link className="button button-primary" to="/subjects">Browse courses <ArrowRight size={16} /></Link>
+          <Link className="button button-quiet" to="/today">Back to Today</Link>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 function SubjectPage() {
   const { subjectId } = useParams();
   const subject = subjects.find((item) => item.id === subjectId) ?? subjects[0];
   const subjectUnits = units.filter((unit) => unit.subjectId === subject.id);
-  const nextUnit = subjectUnits.find((unit) => unit.state !== "locked") ?? subjectUnits[0];
-  const nextLesson = lessons.find((lesson) => lesson.unitId === nextUnit?.id) ?? lessons[0];
   return (
     <div className="page-stack">
       <nav className="content-breadcrumb" aria-label="Course breadcrumb">
@@ -1865,7 +1854,7 @@ function SubjectPage() {
       <div className={`subject-hero subject-${subject.color}`}>
         <div className="subject-hero-symbol">{subject.icon}</div>
         <div>
-          <p className="eyebrow">{subject.code} · 3 units</p>
+          <p className="eyebrow">{subject.code} · {subjectUnits.length} units published</p>
           <h1>{subject.name}</h1>
           <p>Understand the ideas, practice the moves, keep what you learn.</p>
         </div>
@@ -1885,39 +1874,43 @@ function SubjectPage() {
           <SectionTitle
             eyebrow="The learning path"
             title="Units"
-            action={
-              <Link className="text-link" to={practiceSelectionPath(normalizePracticeSelection("course", subject.id))}>
-                Course overview <ArrowRight size={15} />
-              </Link>
-            }
+            action={<Pill tone="neutral">Content pending</Pill>}
           />
-          <div className="unit-list">
-            {subjectUnits.map((unit, index) => (
-              <UnitRow key={unit.id} unit={unit} index={index} />
-            ))}
-          </div>
+          {subjectUnits.length > 0 ? (
+            <div className="unit-list">
+              {subjectUnits.map((unit, index) => (
+                <UnitRow key={unit.id} unit={unit} index={index} />
+              ))}
+            </div>
+          ) : (
+            <Card className="empty-state content-empty-card">
+              <div className="empty-icon"><BookOpen size={23} /></div>
+              <h2>Units are not published yet</h2>
+              <p>Generate and validate the course content before learners begin this path.</p>
+            </Card>
+          )}
         </main>
         <aside>
           <Card className="next-side-card">
-            <p className="eyebrow">Recommended next</p>
+            <p className="eyebrow">Course status</p>
             <h2>{subject.next}</h2>
-            <p className="muted-copy">A small step into the ideas your next unit builds on.</p>
-            <Link className="button button-dark button-full" to={`/lessons/${nextLesson.id}`}>
-              Open lesson <ArrowRight size={16} />
+            <p className="muted-copy">This course is in the catalog, but no lesson files are loaded yet.</p>
+            <Link className="button button-dark button-full" to="/subjects">
+              Back to courses <ArrowRight size={16} />
             </Link>
           </Card>
           <Card className="outcome-card">
-            <p className="eyebrow">By the end</p>
-            <h3>You’ll be able to…</h3>
+            <p className="eyebrow">What happens next</p>
+            <h3>Content pipeline</h3>
             <ul className="check-list">
               <li>
-                <CheckCircle2 size={16} /> ask a clearer question
+                <CheckCircle2 size={16} /> author the lesson Markdown
               </li>
               <li>
-                <CheckCircle2 size={16} /> notice weak evidence
+                <CheckCircle2 size={16} /> validate the question bank
               </li>
               <li>
-                <CheckCircle2 size={16} /> explain your reasoning
+                <CheckCircle2 size={16} /> publish the learner path
               </li>
             </ul>
           </Card>
@@ -1971,6 +1964,14 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
 }
 
 function UnitPage() {
+  return (
+    <ContentUnavailablePage
+      eyebrow="Unit content"
+      title="Units will appear after authoring"
+      description="This course has no published unit files yet."
+    />
+  );
+  /* istanbul ignore next -- retained route contract for generated unit content. */
   const { unitId } = useParams();
   const unit = units.find((item) => item.id === unitId) ?? units[1];
   const unitLessons = lessons.filter((lesson) => lesson.unitId === unit.id);
@@ -2077,6 +2078,14 @@ function LessonRow({ lesson, index }: { lesson: (typeof lessons)[number]; index:
 }
 
 function LessonPage() {
+  return (
+    <ContentUnavailablePage
+      eyebrow="Lesson content"
+      title="Lessons will appear after authoring"
+      description="No learner-facing lesson has been generated or published for this course yet."
+    />
+  );
+  /* istanbul ignore next -- retained route contract for generated lesson content. */
   const { lessonId } = useParams();
   const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
   const unit = units.find((item) => item.id === lesson.unitId) ?? units[1];
@@ -2582,6 +2591,14 @@ function PracticeScopeChooser({
 }
 
 function PracticePage() {
+  return (
+    <ContentUnavailablePage
+      eyebrow="Practice"
+      title="Practice will appear after question authoring"
+      description="No questionnaire is loaded yet. Generate and validate the question bank before learners practice."
+    />
+  );
+  /* istanbul ignore next -- retained route contract for generated question banks. */
   const location = useLocation();
   const navigate = useNavigate();
   const [selection, setSelection] = useState(() => practiceSelectionFromSearch(location.search));
@@ -3027,6 +3044,14 @@ function PracticePageLegacy() {
 }
 
 function FlashcardsPage() {
+  return (
+    <ContentUnavailablePage
+      eyebrow="Flashcards"
+      title="Flashcards will appear after lesson authoring"
+      description="No generated lesson cards are available yet."
+    />
+  );
+  /* istanbul ignore next -- retained route contract for generated lesson cards. */
   const [revealed, setRevealed] = useState(false);
   const [reviewed, setReviewed] = useState(false);
   return (
@@ -3120,7 +3145,7 @@ function PlannerPage() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [menuIndex, setMenuIndex] = useState<number | null>(null);
   const [status, setStatus] = useState("");
-  const emptyDraft = { title: "", subject: "Research Methods", minutes: "20", due: "Today" };
+  const emptyDraft = { title: "", subject: "Understanding the Self", minutes: "20", due: "Today" };
   const [draft, setDraft] = useState(emptyDraft);
   useEffect(() => writeStored(storageKey, tasks), [storageKey, tasks]);
   const openNew = () => {
@@ -3365,9 +3390,11 @@ function TaskDialog({
                 setDraft((current) => ({ ...current, subject: event.target.value }))
               }
             >
-              <option>Research Methods</option>
-              <option>Human–Computer Interaction</option>
-              <option>Technology & Society</option>
+              {subjects.map((course) => (
+                <option value={course.name} key={course.id}>
+                  {course.name}
+                </option>
+              ))}
             </select>
           </label>
           <div className="task-form-grid">
@@ -3598,7 +3625,8 @@ function downloadICS() {
 }
 
 function FocusPage() {
-  const focusKey = `aralivo-focus-${getProfile().email}`;
+  const profile = getProfile();
+  const focusKey = `aralivo-focus-${profile.email}`;
   const persisted = readStored<FocusSession | null>(focusKey, null);
   const [session, setSession] = useState<FocusSession | null>(persisted?.state ? persisted : null);
   const [duration, setDuration] = useState(
@@ -3608,6 +3636,8 @@ function FocusPage() {
     persisted ? persisted.durationSeconds - getElapsedSeconds(persisted) : 25 * 60,
   );
   const [reflection, setReflection] = useState("");
+  const [focusSubject, setFocusSubject] = useState(profile.subject);
+  const [outcome, setOutcome] = useState("Prepare for my first generated lesson.");
   const [syncStatus, setSyncStatus] = useState("");
   const state = session?.state ?? "planned";
   useEffect(() => {
@@ -3696,15 +3726,17 @@ function FocusPage() {
             </div>
             <label className="field">
               <span>Subject</span>
-              <select defaultValue="research">
-                <option value="research">Research Methods</option>
-                <option value="hci">Human–Computer Interaction</option>
-                <option value="ethics">Technology & Society</option>
+              <select value={focusSubject} onChange={(event) => setFocusSubject(event.target.value)}>
+                {subjects.map((course) => (
+                  <option value={course.name} key={course.id}>
+                    {course.name}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="field">
               <span>Intended outcome</span>
-              <input defaultValue="Understand how selection bias can appear in a sample." />
+              <input value={outcome} onChange={(event) => setOutcome(event.target.value)} />
             </label>
             <div className="duration-picker">
               <span className="eyebrow">Session length</span>
@@ -3752,19 +3784,10 @@ function FocusPage() {
             </Card>
             <Card>
               <p className="eyebrow">Recent focus</p>
-              <div className="focus-history-item">
-                <span>25</span>
-                <div>
-                  <strong>Research Methods</strong>
-                  <small>Completed · Monday</small>
-                </div>
-              </div>
-              <div className="focus-history-item">
-                <span>15</span>
-                <div>
-                  <strong>HCI</strong>
-                  <small>Ended early · Sunday</small>
-                </div>
+              <div className="empty-inline compact-empty">
+                <Focus size={22} />
+                <strong>No focus history yet.</strong>
+                <p>Completed sessions will appear here.</p>
               </div>
             </Card>
           </aside>
@@ -3790,8 +3813,8 @@ function FocusPage() {
                     .padStart(2, "0")}:00`
                 : `${mins}:${secs}`}
             </div>
-            <p>Research Methods</p>
-            <h2>Understand how selection bias can appear in a sample.</h2>
+            <p>{focusSubject}</p>
+            <h2>{outcome}</h2>
             <div className="timer-actions">
               {state === "active" && (
                 <button className="button button-quiet" onClick={pause}>
@@ -4088,8 +4111,8 @@ function ResourcesPage() {
           <div className="resource-type">
             <Sparkles size={17} /> AI assistant
           </div>
-          <h2>Ask your lesson</h2>
-          <p>Explain a concept or ask for a hint grounded in the lesson you’re reading.</p>
+          <h2>Lesson context will appear here</h2>
+          <p>Generate and publish a lesson before using the assistant with lesson-specific context.</p>
           <Pill tone="neutral">Not configured</Pill>
           <button className="text-link">
             Learn about privacy <ArrowRight size={14} />
