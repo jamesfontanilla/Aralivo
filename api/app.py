@@ -71,6 +71,7 @@ seen_mutations: set[str] = set()
 
 SEED_LESSON_ID = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self"
 PHILOSOPHICAL_LESSON_ID = "understanding-self.the-self-from-various-perspectives.philosophical-perspectives-of-the-self"
+SOCIOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-sociology"
 SEED_QUESTIONS_ROOT = (
     Path(__file__).resolve().parents[1]
     / "data"
@@ -82,6 +83,7 @@ SEED_QUESTIONS_ROOT = (
 SEED_QUESTION_PATHS = {
     SEED_LESSON_ID: SEED_QUESTIONS_ROOT / "introduction-to-the-self" / "questions.json",
     PHILOSOPHICAL_LESSON_ID: SEED_QUESTIONS_ROOT / "philosophical-perspectives-of-the-self" / "questions.json",
+    SOCIOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-sociology" / "questions.json",
 }
 
 

@@ -61,10 +61,12 @@ import { appUrl, supabase } from "./lib/supabase";
 import { getAssessmentPolicy, type PracticeScope } from "./lib/contentParser";
 import lessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/introduction-to-the-self/lesson.md?raw";
 import philosophicalLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/philosophical-perspectives-of-the-self/lesson.md?raw";
+import sociologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-sociology/lesson.md?raw";
 import "./styles.css";
 
 const seedLessonId = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self";
 const philosophicalLessonId = "understanding-self.the-self-from-various-perspectives.philosophical-perspectives-of-the-self";
+const sociologyLessonId = "understanding-self.the-self-from-various-perspectives.the-self-in-sociology";
 const seedUnitId = "the-self-from-various-perspectives";
 
 const subjects = [
@@ -76,7 +78,7 @@ const subjects = [
     icon: "⌁",
     progress: 0,
     next: "Start with Introduction to the Self",
-    lessons: 2,
+    lessons: 3,
   },
   {
     id: "philippine-history",
@@ -189,8 +191,8 @@ const units: CourseUnit[] = [
     title: "The Self from Various Perspectives",
     label: "Unit 1",
     progress: 0,
-    lessons: 2,
-    duration: "75 min",
+    lessons: 3,
+    duration: "120 min",
     state: "current",
   },
 ];
@@ -215,6 +217,16 @@ const lessons: CourseLesson[] = [
     state: "not-started",
     progress: 0,
     outcome: "Compare philosophical accounts of identity, consciousness, body, and continuity.",
+  },
+  {
+    id: sociologyLessonId,
+    unitId: seedUnitId,
+    title: "The Self in Sociology",
+    eyebrow: "Lesson 3",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Explain how interaction, socialization, roles, and institutions shape the self.",
   },
 ];
 
@@ -1715,13 +1727,13 @@ function TodayPage() {
           <h2>
             Start with a useful question
           </h2>
-          <p>Begin with an introduction to the self, then compare philosophical perspectives in the next lesson.</p>
+          <p>Begin with an introduction, compare philosophical perspectives, then examine how society shapes the self.</p>
           <div className="pebble-meta">
             <span>
               <BookOpen size={15} /> Understanding the Self
             </span>
             <span>
-              <Target size={15} /> 2 lessons · 75 min
+              <Target size={15} /> 3 lessons · 120 min
             </span>
           </div>
           <div className="pebble-actions">
@@ -2357,11 +2369,23 @@ function LessonPage() {
 function SeedLessonPage({ lessonId }: { lessonId: string }) {
   const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
   const isPhilosophicalLesson = lesson.id === philosophicalLessonId;
-  const markdown = isPhilosophicalLesson ? philosophicalLessonMarkdown : lessonMarkdown;
-  const startingProgress = isPhilosophicalLesson ? 0 : 12;
-  const lessonOutline = isPhilosophicalLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Key philosophical perspectives", "Worked examples", "Apply it and transfer"]
-    : ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"];
+  const isSociologyLesson = lesson.id === sociologyLessonId;
+  const markdown = isSociologyLesson
+    ? sociologyLessonMarkdown
+    : isPhilosophicalLesson
+      ? philosophicalLessonMarkdown
+      : lessonMarkdown;
+  const startingProgress = isPhilosophicalLesson || isSociologyLesson ? 0 : 12;
+  const lessonIntro = isSociologyLesson
+    ? "Read for the social settings, expectations, and audiences that shape identity without reducing a person to one label."
+    : isPhilosophicalLesson
+      ? "Read for the question each thinker is answering, the evidence each view favors, and the limits that keep comparison honest."
+      : "Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view.";
+  const lessonOutline = isSociologyLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"]
+    : isPhilosophicalLesson
+      ? ["Why this matters", "Vocabulary and key ideas", "Key philosophical perspectives", "Worked examples", "Apply it and transfer"]
+      : ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"];
   const [note, setNote] = useState(() => window.localStorage.getItem(`aralivo-notes-${getProfile().email}`) ?? "");
   const [saved, setSaved] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -2415,8 +2439,8 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       <div className="lesson-layout">
         <article className="reading-surface">
           <div className="reading-intro">
-            <Pill tone="violet">{isPhilosophicalLesson ? "A 45-minute guided comparison" : "A 30-minute starting point"}</Pill>
-            <p>{isPhilosophicalLesson ? "Read for the question each thinker is answering, the evidence each view favors, and the limits that keep comparison honest." : "Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view."}</p>
+            <Pill tone="violet">{isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
+            <p>{lessonIntro}</p>
           </div>
           <LessonMarkdownContent markdown={markdown} />
           <label className="note-field">
