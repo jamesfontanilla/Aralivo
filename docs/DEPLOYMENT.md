@@ -18,7 +18,7 @@ Register a separate callback and explicit consent flow. Request only `calendar.e
 
 ## Stellar/Soroban
 
-Deploy and test a dedicated receipt contract and issuer account on testnet first. Keep `STELLAR_ISSUER_SECRET_KEY` server-only, expose only verification metadata, and make receipt issuance opt-in and non-blocking.
+Create and fund a dedicated issuer account on testnet first. Aralivo anchors the receipt hash in a Stellar account data entry, so no Soroban contract is required for the first production-safe receipt path. Keep `STELLAR_ISSUER_SECRET_KEY` server-only, expose only verification metadata, and make receipt issuance opt-in and non-blocking.
 
 ## Vercel
 

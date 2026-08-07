@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" role="img" aria-labelledby="title desc">
+  <title id="title">STS inquiry loop</title>
+  <desc id="desc">A five-step loop from context to evidence, design, consequences, and public review.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#325c4a"/>
+    </marker>
+  </defs>
+  <rect width="960" height="340" rx="28" fill="#f7f8f3"/>
+  <text x="48" y="58" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700" fill="#16382d">A practical STS inquiry loop</text>
+  <text x="48" y="87" font-family="Inter,Arial,sans-serif" font-size="15" fill="#506258">Use the loop to move from a promising idea to a reviewable public decision.</text>
+  <g font-family="Inter,Arial,sans-serif">
+    <rect x="48" y="135" width="150" height="94" rx="18" fill="#dcebe4" stroke="#437b65" stroke-width="2"/>
+    <text x="123" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="#16382d">1. Context</text>
+    <text x="123" y="194" text-anchor="middle" font-size="14" fill="#35564a">Who, where,</text>
+    <text x="123" y="213" text-anchor="middle" font-size="14" fill="#35564a">and what need?</text>
+    <rect x="230" y="135" width="150" height="94" rx="18" fill="#e4e8f5" stroke="#6574a8" stroke-width="2"/>
+    <text x="305" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="#283558">2. Evidence</text>
+    <text x="305" y="194" text-anchor="middle" font-size="14" fill="#4b5780">What is known,</text>
+    <text x="305" y="213" text-anchor="middle" font-size="14" fill="#4b5780">missing, or weak?</text>
+    <rect x="412" y="135" width="150" height="94" rx="18" fill="#f4e0d2" stroke="#b27655" stroke-width="2"/>
+    <text x="487" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="#653f2e">3. Design</text>
+    <text x="487" y="194" text-anchor="middle" font-size="14" fill="#795843">What choices,</text>
+    <text x="487" y="213" text-anchor="middle" font-size="14" fill="#795843">limits, and costs?</text>
+    <rect x="594" y="135" width="150" height="94" rx="18" fill="#f1ebc9" stroke="#a5974d" stroke-width="2"/>
+    <text x="669" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="#5b5224">4. Effects</text>
+    <text x="669" y="194" text-anchor="middle" font-size="14" fill="#6d652e">Who benefits,</text>
+    <text x="669" y="213" text-anchor="middle" font-size="14" fill="#6d652e">bears risks, or adapts?</text>
+    <rect x="776" y="135" width="136" height="94" rx="18" fill="#e6e2f1" stroke="#7d6ba7" stroke-width="2"/>
+    <text x="844" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="#40365d">5. Review</text>
+    <text x="844" y="194" text-anchor="middle" font-size="14" fill="#5e5277">What should</text>
+    <text x="844" y="213" text-anchor="middle" font-size="14" fill="#5e5277">change next?</text>
+  </g>
+  <g fill="none" stroke="#325c4a" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M198 182 H225"/>
+    <path d="M380 182 H407"/>
+    <path d="M562 182 H589"/>
+    <path d="M744 182 H771"/>
+    <path d="M844 239 C760 300 200 300 116 239"/>
+  </g>
+  <text x="480" y="313" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="600" fill="#325c4a">A responsible recommendation stays open to evidence and public feedback.</text>
+</svg>

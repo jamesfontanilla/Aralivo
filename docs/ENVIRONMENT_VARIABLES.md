@@ -16,7 +16,7 @@
 | `GOOGLE_SIGNIN_REDIRECT_URI`, `GOOGLE_CALENDAR_REDIRECT_URI`, `GOOGLE_CALENDAR_SCOPES` | feature-only config | Separate OAuth flows | no | Vercel server |
 | `AI_PROVIDER`, `AI_API_BASE_URL`, `AI_MODEL`, timeout/context settings, `AI_FEATURE_ENABLED` | feature-only config | OpenAI-compatible adapter | no | Vercel server |
 | `AI_API_KEY` | feature-only server secret | AI provider credential | no | Vercel server |
-| `STELLAR_NETWORK`, passphrase, RPC/Horizon URLs, contract/issuer public key, timeout, feature flag | feature-only config | Testnet-first receipt adapter | no | Vercel server |
+| `STELLAR_NETWORK`, passphrase, RPC/Horizon URLs, issuer public key, timeout, feature flag | feature-only config | Testnet-first receipt adapter; hash anchored in Stellar account data | no | Vercel server |
 | `STELLAR_ISSUER_SECRET_KEY` | feature-only server secret | Dedicated server receipt signer | no | Vercel server |
 | `OPEN_LIBRARY_BASE_URL`, `OPEN_LIBRARY_USER_AGENT` | feature-only config | Low-volume book metadata | no key required | Vercel server |
 | `OPENALEX_API_KEY`, `OPENALEX_MAILTO` | feature-only server config | Scholarly metadata; key required by current docs | no | Vercel server |

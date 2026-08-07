@@ -1816,8 +1816,11 @@ textarea::placeholder,
   grid-template-columns: minmax(0, 1fr) 270px;
   gap: 30px;
   align-items: start;
+  min-width: 0;
 }
 .reading-surface {
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 36px 42px 45px;
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -1847,6 +1850,8 @@ textarea::placeholder,
 .lesson-markdown {
   display: grid;
   gap: 10px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .lesson-markdown h2 {
   margin: 34px 0 4px;
@@ -1880,6 +1885,18 @@ textarea::placeholder,
 .lesson-markdown a {
   color: var(--primary-strong);
   font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.lesson-markdown img {
+  display: block;
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  margin: 1.5rem auto;
+  border: 1px solid var(--surface-raised);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 12px 30px rgba(30, 56, 45, 0.08);
 }
 .lesson-markdown strong {
   color: var(--ink);
@@ -2812,6 +2829,11 @@ textarea::placeholder,
   color: var(--muted);
   font-size: 0.85rem;
 }
+.receipt-hero-note {
+  margin-top: 10px;
+  color: var(--mint-strong) !important;
+  font-weight: 800;
+}
 .receipts-layout > .card {
   padding: 23px;
 }
@@ -2848,6 +2870,16 @@ textarea::placeholder,
   margin: 3px 0 0;
   color: var(--muted);
   font-size: 0.7rem;
+}
+.receipt-item code {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+}
+.receipt-explainer {
+  margin: 22px 0 14px;
 }
 .empty-inline {
   display: grid;

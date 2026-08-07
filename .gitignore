@@ -12,3 +12,5 @@ __pycache__/
 coverage/
 *.tsbuildinfo
 .DS_Store
+
+.vercel

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
+  <title id="title">Science, technology, and society relationship map</title>
+  <desc id="desc">Three overlapping circles show that science, technology, and society are distinct but mutually shaping parts of an STS system.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f9f8f3"/>
+      <stop offset="1" stop-color="#edf1e8"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#325c4a"/>
+    </marker>
+  </defs>
+  <rect width="960" height="520" rx="28" fill="url(#paper)"/>
+  <text x="52" y="62" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="700" fill="#16382d">The STS relationship</text>
+  <text x="52" y="93" font-family="Inter,Arial,sans-serif" font-size="16" fill="#506258">Keep the ideas distinct, then trace how each one shapes the others.</text>
+  <circle cx="300" cy="260" r="138" fill="#cfe8de" fill-opacity=".92" stroke="#437b65" stroke-width="3"/>
+  <circle cx="660" cy="260" r="138" fill="#dfe4f4" fill-opacity=".92" stroke="#6574a8" stroke-width="3"/>
+  <circle cx="480" cy="375" r="138" fill="#f5decf" fill-opacity=".94" stroke="#b27655" stroke-width="3"/>
+  <text x="300" y="242" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700" fill="#16382d">Science</text>
+  <text x="300" y="272" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#35564a">questions, evidence,</text>
+  <text x="300" y="294" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#35564a">explanations, criticism</text>
+  <text x="660" y="242" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700" fill="#283558">Technology</text>
+  <text x="660" y="272" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#4b5780">designs, tools,</text>
+  <text x="660" y="294" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#4b5780">systems, routines</text>
+  <text x="480" y="359" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700" fill="#653f2e">Society</text>
+  <text x="480" y="389" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#795843">needs, values,</text>
+  <text x="480" y="411" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#795843">institutions, access</text>
+  <path d="M432 206 C480 145 555 145 607 206" fill="none" stroke="#325c4a" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M579 324 C553 278 511 250 455 236" fill="none" stroke="#325c4a" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M404 339 C380 315 359 291 348 269" fill="none" stroke="#325c4a" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="520" y="145" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" fill="#325c4a">opens new ways to observe</text>
+  <text x="565" y="292" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" fill="#325c4a">changes daily life</text>
+  <text x="362" y="316" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" fill="#325c4a">sets priorities</text>
+  <rect x="52" y="445" width="856" height="42" rx="12" fill="#ffffff" fill-opacity=".8"/>
+  <text x="480" y="472" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="600" fill="#325c4a">An STS question: What evidence, design choices, and social conditions connect these effects?</text>
+</svg>

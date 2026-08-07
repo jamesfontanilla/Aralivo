@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence map for a historical claim</title>
+  <desc id="desc">A central historical claim is connected to artifacts, texts, environmental records, community memory, and institutional records. Each evidence type supports different inferences and leaves some uncertainty.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffaf4"/>
+      <stop offset="1" stop-color="#f3f1ff"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#6472a8"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#26345d" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="520" rx="28" fill="url(#bg)"/>
+  <text x="58" y="58" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700" fill="#1e2848">Build a claim from several kinds of evidence</text>
+  <text x="58" y="88" font-family="Inter,Arial,sans-serif" font-size="15" fill="#59627a">Each record supports some inferences and leaves other questions open.</text>
+
+  <g font-family="Inter,Arial,sans-serif" filter="url(#shadow)">
+    <rect x="440" y="184" width="320" height="132" rx="22" fill="#5367a6"/>
+    <text x="487" y="225" font-size="18" font-weight="700" fill="#fff">Historical claim</text>
+    <text x="487" y="254" font-size="14" fill="#e8ecff">What happened, where, when,</text>
+    <text x="487" y="276" font-size="14" fill="#e8ecff">and how did it shape what followed?</text>
+    <text x="487" y="301" font-size="12" fill="#d9e0ff">state confidence + what remains uncertain</text>
+
+    <rect x="70" y="142" width="225" height="96" rx="18" fill="#fff" stroke="#f0b25e" stroke-width="2"/>
+    <text x="96" y="176" font-size="16" font-weight="700" fill="#9a5b1d">Artifacts</text>
+    <text x="96" y="202" font-size="13" fill="#59627a">materials, design, use</text>
+    <text x="96" y="222" font-size="12" fill="#7a8295">not always intention or authorship</text>
+
+    <rect x="70" y="326" width="225" height="96" rx="18" fill="#fff" stroke="#c8c9f0" stroke-width="2"/>
+    <text x="96" y="360" font-size="16" font-weight="700" fill="#3f3a83">Texts and images</text>
+    <text x="96" y="386" font-size="13" fill="#59627a">explanations, records, claims</text>
+    <text x="96" y="406" font-size="12" fill="#7a8295">reflect audience and purpose</text>
+
+    <rect x="880" y="142" width="250" height="96" rx="18" fill="#fff" stroke="#b8e0d6" stroke-width="2"/>
+    <text x="906" y="176" font-size="16" font-weight="700" fill="#267664">Environment</text>
+    <text x="906" y="202" font-size="13" fill="#59627a">water, soil, climate, hazards</text>
+    <text x="906" y="222" font-size="12" fill="#7a8295">conditions, not a complete cause</text>
+
+    <rect x="880" y="326" width="250" height="96" rx="18" fill="#fff" stroke="#dda8cc" stroke-width="2"/>
+    <text x="906" y="360" font-size="16" font-weight="700" fill="#834d73">Community memory</text>
+    <text x="906" y="386" font-size="13" fill="#59627a">experience, meaning, continuity</text>
+    <text x="906" y="406" font-size="12" fill="#7a8295">requires consent and context</text>
+
+    <rect x="445" y="388" width="310" height="84" rx="18" fill="#fff" stroke="#e3a3a3" stroke-width="2"/>
+    <text x="478" y="423" font-size="16" font-weight="700" fill="#9b4f4f">Institutional record</text>
+    <text x="478" y="448" font-size="13" fill="#59627a">policy, funding, schools, credit</text>
+  </g>
+
+  <g fill="none" stroke="#6472a8" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M295 190 C350 190 382 210 440 224"/>
+    <path d="M295 374 C350 374 380 310 440 280"/>
+    <path d="M880 190 C830 190 810 212 760 228"/>
+    <path d="M880 374 C830 374 805 310 760 280"/>
+    <path d="M600 388 C600 360 600 344 600 316"/>
+  </g>
+
+  <rect x="344" y="112" width="510" height="34" rx="17" fill="#fff" stroke="#d8d8ec"/>
+  <text x="600" y="135" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="600" fill="#59627a">triangulate • name limits • do not overclaim</text>
+  <text x="58" y="490" font-family="Inter,Arial,sans-serif" font-size="13" fill="#59627a">“Supports” is stronger than “proves” when a record is partial, selective, or produced for a specific purpose.</text>
+</svg>

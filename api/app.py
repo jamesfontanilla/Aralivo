@@ -14,6 +14,22 @@ from pydantic import BaseModel, Field
 from api.content.validators import validate_lesson_markdown, validate_question_bank
 from api.services.assessment import AssessmentScope, AssessmentSelectionError, select_questions
 from api.services.receipts import build_receipt_payload, hash_receipt_payload
+from api.services.receipt_store import (
+    ReceiptStoreError,
+    create_pending,
+    find_by_hash,
+    find_by_idempotency,
+    is_receipt_store_ready,
+    list_for_user,
+    mark_failed,
+    mark_issued,
+)
+from api.services.stellar_receipts import (
+    StellarReceiptError,
+    get_stellar_config,
+    is_stellar_ready,
+    issue_receipt_anchor,
+)
 from api.services.xp import XpLedger
 
 
@@ -63,6 +79,13 @@ class ReceiptRequest(BaseModel):
     network: str = "testnet"
 
 
+class ReceiptIssueRequest(BaseModel):
+    content_identifier: str = Field(min_length=1, max_length=240)
+    achievement_type: str = Field(min_length=1, max_length=80)
+    content_version: str = Field(min_length=1, max_length=80)
+    idempotency_key: str = Field(min_length=8, max_length=160)
+
+
 app = FastAPI(title="Aralivo API", version="0.1.0")
 cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173,https://aralivo.vercel.app").split(",") if origin.strip()]
 app.add_middleware(CORSMiddleware, allow_origins=cors_origins, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "Idempotency-Key", "X-Request-Id"])
@@ -74,6 +97,15 @@ PHILOSOPHICAL_LESSON_ID = "understanding-self.the-self-from-various-perspectives
 SOCIOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-sociology"
 ANTHROPOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-anthropology"
 PSYCHOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-psychology"
+ETHICS_LESSON_ID = "ethics.foundations-of-ethics.moral-and-non-moral-standards"
+MORAL_DILEMMAS_LESSON_ID = "ethics.foundations-of-ethics.moral-dilemmas-and-ethical-problems"
+FREEDOM_LESSON_ID = "ethics.foundations-of-ethics.freedom-responsibility-reason-and-impartiality"
+CULTURE_MORAL_BEHAVIOR_LESSON_ID = "ethics.the-moral-agent.culture-and-moral-behavior"
+COMMUNICATION_LESSON_ID = "purposive-communication.communication-foundations.communication-processes-and-elements"
+PRINCIPLES_ETHICS_LESSON_ID = "purposive-communication.communication-foundations.principles-and-ethics-of-communication"
+VERBAL_NONVERBAL_MULTIMODAL_LESSON_ID = "purposive-communication.communication-foundations.verbal-non-verbal-and-multimodal-communication"
+STS_LESSON_ID = "science-technology-society.science-technology-and-social-change.what-are-science-technology-and-society"
+HISTORICAL_ANTECEDENTS_LESSON_ID = "science-technology-society.science-technology-and-social-change.historical-antecedents-of-science-and-technology"
 SEED_QUESTIONS_ROOT = (
     Path(__file__).resolve().parents[1]
     / "data"
@@ -88,6 +120,15 @@ SEED_QUESTION_PATHS = {
     SOCIOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-sociology" / "questions.json",
     ANTHROPOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-anthropology" / "questions.json",
     PSYCHOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-psychology" / "questions.json",
+    ETHICS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "foundations-of-ethics" / "moral-and-non-moral-standards" / "questions.json",
+    MORAL_DILEMMAS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "foundations-of-ethics" / "moral-dilemmas-and-ethical-problems" / "questions.json",
+    FREEDOM_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "foundations-of-ethics" / "freedom-responsibility-reason-and-impartiality" / "questions.json",
+    CULTURE_MORAL_BEHAVIOR_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "the-moral-agent" / "culture-and-moral-behavior" / "questions.json",
+    COMMUNICATION_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "communication-foundations" / "communication-processes-and-elements" / "questions.json",
+    PRINCIPLES_ETHICS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "communication-foundations" / "principles-and-ethics-of-communication" / "questions.json",
+    VERBAL_NONVERBAL_MULTIMODAL_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "communication-foundations" / "verbal-non-verbal-and-multimodal-communication" / "questions.json",
+    STS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "science-technology-society" / "science-technology-and-social-change" / "what-are-science-technology-and-society" / "questions.json",
+    HISTORICAL_ANTECEDENTS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "science-technology-society" / "science-technology-and-social-change" / "historical-antecedents-of-science-and-technology" / "questions.json",
 }
 
 
@@ -95,9 +136,18 @@ def request_id() -> str:
     return f"req_{uuid4().hex[:16]}"
 
 
-def error_response(request_id_value: str, code: str, message: str, retriable: bool = False) -> JSONResponse:
+def error_response(
+    request_id_value: str,
+    code: str,
+    message: str,
+    retriable: bool = False,
+    status_code: int | None = None,
+) -> JSONResponse:
     payload = ErrorEnvelope(code=code, message=message, request_id=request_id_value, retriable=retriable)
-    return JSONResponse(status_code=400 if code != "UNAUTHORIZED" else 401, content=payload.model_dump(mode="json"))
+    return JSONResponse(
+        status_code=status_code or (401 if code == "UNAUTHORIZED" else 400),
+        content=payload.model_dump(mode="json"),
+    )
 
 
 def safe_learner_question(item: dict) -> dict:
@@ -138,9 +188,12 @@ async def health() -> HealthResponse:
 
 @app.get("/api/v1/config")
 async def public_config() -> dict:
+    stellar_config = get_stellar_config()
     return {
         "ai_enabled": False,
-        "stellar_enabled": False,
+        "stellar_enabled": is_stellar_ready() and is_receipt_store_ready(),
+        "stellar_network": stellar_config.network,
+        "stellar_anchor_mode": "stellar_account_data",
         "calendar_enabled": False,
         "email_delivery": "supabase-auth",
         "auth_enabled": bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_ANON_KEY")),
@@ -236,6 +289,93 @@ async def receipt_preview(payload: ReceiptRequest, request: Request, authorizati
         return error_response(request.headers.get("X-Request-Id", request_id()), "UNAUTHORIZED", "Sign in to preview a receipt.")
     receipt = build_receipt_payload(payload.model_dump())
     return {"payload": receipt, "payload_hash": hash_receipt_payload(receipt), "public_fields": list(receipt)}
+
+
+@app.get("/api/v1/receipts")
+async def receipt_history(request: Request, authorization: str | None = Header(default=None)):
+    rid = request.headers.get("X-Request-Id", request_id())
+    user = await require_user(authorization)
+    if not user:
+        return error_response(rid, "UNAUTHORIZED", "Sign in to view your receipts.")
+    try:
+        return {"receipts": await list_for_user(str(user["id"]))}
+    except ReceiptStoreError as exc:
+        return error_response(rid, "RECEIPT_STORE_UNAVAILABLE", str(exc), retriable=True, status_code=503)
+
+
+@app.post("/api/v1/receipts/issue")
+async def receipt_issue(
+    payload: ReceiptIssueRequest,
+    request: Request,
+    authorization: str | None = Header(default=None),
+):
+    rid = request.headers.get("X-Request-Id", request_id())
+    user = await require_user(authorization)
+    if not user:
+        return error_response(rid, "UNAUTHORIZED", "Sign in to issue a receipt.")
+    if not is_stellar_ready():
+        return error_response(
+            rid,
+            "STELLAR_NOT_CONFIGURED",
+            "Stellar receipts are not configured on this deployment yet.",
+            status_code=503,
+        )
+    if not is_receipt_store_ready():
+        return error_response(
+            rid,
+            "RECEIPT_STORE_UNAVAILABLE",
+            "Receipt storage is not configured on this deployment yet.",
+            retriable=True,
+            status_code=503,
+        )
+
+    user_id = str(user["id"])
+    pending: dict | None = None
+    try:
+        existing = await find_by_idempotency(user_id, payload.idempotency_key)
+        if existing and existing.get("status") == "issued":
+            return {"receipt": existing, "payload_hash": existing.get("payload_hash"), "replayed": True}
+
+        stellar_config = get_stellar_config()
+        receipt = build_receipt_payload(
+            {
+                "learner_identifier": user_id,
+                "content_identifier": payload.content_identifier,
+                "achievement_type": payload.achievement_type,
+                "completed_at": datetime.now(timezone.utc),
+                "issuer_public_key": stellar_config.issuer_public_key,
+                "content_version": payload.content_version,
+                "network": stellar_config.network,
+            }
+        )
+        payload_hash = hash_receipt_payload(receipt)
+        existing_hash = await find_by_hash(user_id, payload_hash)
+        if existing_hash and existing_hash.get("status") == "issued":
+            return {"receipt": existing_hash, "payload_hash": payload_hash, "replayed": True}
+
+        pending = await create_pending(
+            {
+                "user_id": user_id,
+                "idempotency_key": payload.idempotency_key,
+                "payload_hash": payload_hash,
+                **receipt,
+                "status": "pending",
+            }
+        )
+        if pending.get("status") == "issued":
+            return {"receipt": pending, "payload_hash": payload_hash, "replayed": True}
+
+        anchor = issue_receipt_anchor(payload_hash)
+        issued = await mark_issued(str(pending["id"]), anchor)
+        return {"receipt": issued, "payload_hash": payload_hash, "replayed": False}
+    except StellarReceiptError as exc:
+        if pending and pending.get("id"):
+            await mark_failed(str(pending["id"]))
+        return error_response(rid, exc.code, exc.message, retriable=True, status_code=503)
+    except ReceiptStoreError as exc:
+        if pending and pending.get("id"):
+            await mark_failed(str(pending["id"]))
+        return error_response(rid, "RECEIPT_STORE_UNAVAILABLE", str(exc), retriable=True, status_code=503)
 
 
 @app.post("/api/v1/content/validate/lesson")

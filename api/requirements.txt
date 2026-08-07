@@ -9,3 +9,4 @@ pytest-asyncio==0.25.0
 python-multipart==0.0.20
 PyJWT==2.10.1
 cryptography==44.0.0
+stellar-sdk==14.1.0

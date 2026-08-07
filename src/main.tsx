@@ -64,6 +64,15 @@ import philosophicalLessonMarkdown from "../data/seed/lessons/understanding-self
 import sociologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-sociology/lesson.md?raw";
 import anthropologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-anthropology/lesson.md?raw";
 import psychologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-psychology/lesson.md?raw";
+import ethicsLessonMarkdown from "../data/seed/lessons/ethics/foundations-of-ethics/moral-and-non-moral-standards/lesson.md?raw";
+import moralDilemmasLessonMarkdown from "../data/seed/lessons/ethics/foundations-of-ethics/moral-dilemmas-and-ethical-problems/lesson.md?raw";
+import freedomLessonMarkdown from "../data/seed/lessons/ethics/foundations-of-ethics/freedom-responsibility-reason-and-impartiality/lesson.md?raw";
+import cultureMoralBehaviorLessonMarkdown from "../data/seed/lessons/ethics/the-moral-agent/culture-and-moral-behavior/lesson.md?raw";
+import communicationLessonMarkdown from "../data/seed/lessons/purposive-communication/communication-foundations/communication-processes-and-elements/lesson.md?raw";
+import principlesEthicsLessonMarkdown from "../data/seed/lessons/purposive-communication/communication-foundations/principles-and-ethics-of-communication/lesson.md?raw";
+import verbalNonVerbalMultimodalLessonMarkdown from "../data/seed/lessons/purposive-communication/communication-foundations/verbal-non-verbal-and-multimodal-communication/lesson.md?raw";
+import stsLessonMarkdown from "../data/seed/lessons/science-technology-society/science-technology-and-social-change/what-are-science-technology-and-society/lesson.md?raw";
+import historicalAntecedentsLessonMarkdown from "../data/seed/lessons/science-technology-society/science-technology-and-social-change/historical-antecedents-of-science-and-technology/lesson.md?raw";
 import "./styles.css";
 
 const seedLessonId = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self";
@@ -72,6 +81,19 @@ const sociologyLessonId = "understanding-self.the-self-from-various-perspectives
 const anthropologyLessonId = "understanding-self.the-self-from-various-perspectives.the-self-in-anthropology";
 const psychologyLessonId = "understanding-self.the-self-from-various-perspectives.the-self-in-psychology";
 const seedUnitId = "the-self-from-various-perspectives";
+const ethicsLessonId = "ethics.foundations-of-ethics.moral-and-non-moral-standards";
+const moralDilemmasLessonId = "ethics.foundations-of-ethics.moral-dilemmas-and-ethical-problems";
+const freedomLessonId = "ethics.foundations-of-ethics.freedom-responsibility-reason-and-impartiality";
+const cultureMoralBehaviorLessonId = "ethics.the-moral-agent.culture-and-moral-behavior";
+const ethicsUnitId = "foundations-of-ethics";
+const moralAgentUnitId = "the-moral-agent";
+const communicationLessonId = "purposive-communication.communication-foundations.communication-processes-and-elements";
+const principlesEthicsLessonId = "purposive-communication.communication-foundations.principles-and-ethics-of-communication";
+const verbalNonVerbalMultimodalLessonId = "purposive-communication.communication-foundations.verbal-non-verbal-and-multimodal-communication";
+const communicationUnitId = "communication-foundations";
+const stsLessonId = "science-technology-society.science-technology-and-social-change.what-are-science-technology-and-society";
+const historicalAntecedentsLessonId = "science-technology-society.science-technology-and-social-change.historical-antecedents-of-science-and-technology";
+const stsUnitId = "science-technology-and-social-change";
 
 const subjects = [
   {
@@ -111,8 +133,8 @@ const subjects = [
     color: "violet",
     icon: "S",
     progress: 0,
-    next: "Content not generated yet",
-    lessons: 0,
+    next: "Start with What Are Science, Technology, and Society?",
+    lessons: 2,
   },
   {
     id: "mathematics-modern-world",
@@ -141,8 +163,8 @@ const subjects = [
     color: "violet",
     icon: "P",
     progress: 0,
-    next: "Content not generated yet",
-    lessons: 0,
+    next: "Continue with Verbal, Non-Verbal, and Multimodal Communication",
+    lessons: 3,
   },
   {
     id: "art-appreciation",
@@ -161,8 +183,8 @@ const subjects = [
     color: "coral",
     icon: "E",
     progress: 0,
-    next: "Content not generated yet",
-    lessons: 0,
+    next: "Start with Culture and Moral Behavior",
+    lessons: 4,
   },
 ];
 
@@ -197,6 +219,46 @@ const units: CourseUnit[] = [
     progress: 0,
     lessons: 5,
     duration: "210 min",
+    state: "current",
+  },
+  {
+    id: ethicsUnitId,
+    subjectId: "ethics",
+    title: "Foundations of Ethics",
+    label: "Unit 1",
+    progress: 0,
+    lessons: 3,
+    duration: "130 min",
+    state: "current",
+  },
+  {
+    id: moralAgentUnitId,
+    subjectId: "ethics",
+    title: "The Moral Agent",
+    label: "Unit 2",
+    progress: 0,
+    lessons: 1,
+    duration: "45 min",
+    state: "current",
+  },
+  {
+    id: communicationUnitId,
+    subjectId: "purposive-communication",
+    title: "Communication Foundations",
+    label: "Unit 1",
+    progress: 0,
+    lessons: 3,
+    duration: "135 min",
+    state: "current",
+  },
+  {
+    id: stsUnitId,
+    subjectId: "science-technology-society",
+    title: "Science, Technology, and Social Change",
+    label: "Unit 1",
+    progress: 0,
+    lessons: 2,
+    duration: "85 min",
     state: "current",
   },
 ];
@@ -251,6 +313,96 @@ const lessons: CourseLesson[] = [
     state: "not-started",
     progress: 0,
     outcome: "Compare psychological theories of self-concept, motivation, personality, development, and behavior.",
+  },
+  {
+    id: ethicsLessonId,
+    unitId: ethicsUnitId,
+    title: "Moral and Non-Moral Standards",
+    eyebrow: "Lesson 1",
+    duration: "40 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Distinguish moral standards from other rules and make a careful ethical judgment.",
+  },
+  {
+    id: moralDilemmasLessonId,
+    unitId: ethicsUnitId,
+    title: "Moral Dilemmas and Ethical Problems",
+    eyebrow: "Lesson 2",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Distinguish genuine moral dilemmas from ordinary ethical problems and justify a responsible response under conflict.",
+  },
+  {
+    id: freedomLessonId,
+    unitId: ethicsUnitId,
+    title: "Freedom, Responsibility, Reason, and Impartiality",
+    eyebrow: "Lesson 3",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Use freedom, responsibility, reason, and impartiality to justify a transparent and fair moral judgment.",
+  },
+  {
+    id: cultureMoralBehaviorLessonId,
+    unitId: moralAgentUnitId,
+    title: "Culture and Moral Behavior",
+    eyebrow: "Lesson 1",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Explain how culture shapes moral learning and behavior while distinguishing cultural context from uncritical moral relativism.",
+  },
+  {
+    id: communicationLessonId,
+    unitId: communicationUnitId,
+    title: "Communication Processes and Elements",
+    eyebrow: "Lesson 1",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Trace how messages are created, interpreted, and repaired across audiences and channels.",
+  },
+  {
+    id: principlesEthicsLessonId,
+    unitId: communicationUnitId,
+    title: "Principles and Ethics of Communication",
+    eyebrow: "Lesson 2",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Use truthfulness, respect, fairness, privacy, and accountability to judge and revise communication choices.",
+  },
+  {
+    id: verbalNonVerbalMultimodalLessonId,
+    unitId: communicationUnitId,
+    title: "Verbal, Non-Verbal, and Multimodal Communication",
+    eyebrow: "Lesson 3",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Compare words, embodied cues, and combined modes, then design a clear and accessible message.",
+  },
+  {
+    id: stsLessonId,
+    unitId: stsUnitId,
+    title: "What Are Science, Technology, and Society?",
+    eyebrow: "Lesson 1",
+    duration: "40 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Build an STS lens for seeing how evidence, design, and social choices shape one another.",
+  },
+  {
+    id: historicalAntecedentsLessonId,
+    unitId: stsUnitId,
+    title: "Historical Antecedents of Science and Technology",
+    eyebrow: "Lesson 2",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Trace how earlier knowledge, tools, institutions, and social choices shaped later science and technology.",
   },
 ];
 
@@ -337,9 +489,13 @@ function writeStored<T>(key: string, value: T) {
 }
 
 function renderInlineLessonText(text: string, keyPrefix: string) {
-  const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g).filter(Boolean);
+  const tokens = text.split(/(!\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g).filter(Boolean);
   return tokens.map((token, index) => {
     const key = `${keyPrefix}-${index}`;
+    const image = token.match(/^!\[([^\]]+)\]\(([^)]+)\)$/);
+    if (image) {
+      return <img key={key} src={image[2]} alt={image[1]} loading="lazy" />;
+    }
     const link = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (link) {
       return (
@@ -413,6 +569,7 @@ type DemoProfile = {
   term: string;
   subject: string;
   verified: boolean;
+  receiptsEnabled?: boolean;
 };
 
 type PlannerTask = {
@@ -432,12 +589,34 @@ type FocusSession = {
   state: "active" | "paused" | "completed" | "ended";
 };
 
+type ReceiptRecord = {
+  id: string;
+  payload_hash: string;
+  content_identifier: string;
+  achievement_type: string;
+  completed_at: string;
+  issuer_public_key: string;
+  content_version: string;
+  network: "testnet" | "public";
+  transaction_hash: string | null;
+  verification_url: string | null;
+  status: "pending" | "issued" | "failed";
+  created_at: string;
+};
+
+type StellarConfig = {
+  stellar_enabled: boolean;
+  stellar_network: "testnet" | "public";
+  stellar_anchor_mode: string;
+};
+
 const defaultProfile: DemoProfile = {
   email: "jamie@example.com",
   displayName: "Jamie Santos",
   term: "August–December 2026",
   subject: "Understanding the Self",
   verified: true,
+  receiptsEnabled: false,
 };
 
 const defaultTasks: PlannerTask[] = [];
@@ -473,7 +652,7 @@ async function syncProfile(user: User, updates: Partial<DemoProfile> = {}) {
   if (!supabase) return getProfile();
   const { data } = await supabase
     .from("profiles")
-    .select("id,email,display_name,term,primary_subject,verified")
+    .select("id,email,display_name,term,primary_subject,verified,receipts_enabled")
     .eq("id", user.id)
     .maybeSingle();
   const profile: DemoProfile = {
@@ -482,6 +661,7 @@ async function syncProfile(user: User, updates: Partial<DemoProfile> = {}) {
     term: data?.term ?? defaultProfile.term,
     subject: data?.primary_subject ?? defaultProfile.subject,
     verified: Boolean(data?.verified ?? user.email_confirmed_at),
+    receiptsEnabled: Boolean(data?.receipts_enabled ?? defaultProfile.receiptsEnabled),
     ...updates,
   };
   writeStored("aralivo-profile", profile);
@@ -2114,6 +2294,11 @@ function UnitPage() {
   const unitLessons = lessons.filter((lesson) => lesson.unitId === unit.id);
   const course = subjects.find((item) => item.id === unit.subjectId) ?? subjects[0];
   const unitSelection = normalizePracticeSelection("unit", course.id, unit.id);
+  const isEthicsUnit = unit.id === ethicsUnitId;
+  const isMoralAgentUnit = unit.id === moralAgentUnitId;
+  const isCommunicationUnit = unit.id === communicationUnitId;
+  const isStsUnit = unit.id === stsUnitId;
+  const hasNoPrerequisitesUnit = isEthicsUnit || isMoralAgentUnit || isCommunicationUnit || isStsUnit;
   return (
     <div className="page-stack">
       <nav className="content-breadcrumb" aria-label="Unit breadcrumb">
@@ -2126,7 +2311,17 @@ function UnitPage() {
       <PageHeader
         eyebrow={`${course.name} · ${unit.label}`}
         title={unit.title}
-        description="A short path from a useful question to a more careful account of yourself."
+        description={
+          isEthicsUnit
+            ? "A short path from familiar rules to a more careful account of moral judgment."
+            : isMoralAgentUnit
+              ? "A focused path through the cultural settings, pressures, and choices that shape moral agency."
+            : isCommunicationUnit
+              ? "A practical path from message elements to clearer, more respectful exchanges."
+              : isStsUnit
+                ? "A practical introduction to the relationships among evidence, design, context, and social change."
+              : "A short path from a useful question to a more careful account of yourself."
+        }
         action={
           <Link className="button button-primary" to={practiceSelectionPath(unitSelection)}>
             <Target size={16} /> Review unit · 30 items
@@ -2137,9 +2332,37 @@ function UnitPage() {
         <Card>
           <p className="eyebrow">Learning outcomes</p>
           <ul className="check-list">
-              <li><CheckCircle2 size={16} /> identify questions about the self</li>
-              <li><CheckCircle2 size={16} /> compare five useful perspectives</li>
-              <li><CheckCircle2 size={16} /> state a careful next question</li>
+            {isEthicsUnit ? (
+              <>
+                <li><CheckCircle2 size={16} /> distinguish moral and non-moral standards</li>
+                <li><CheckCircle2 size={16} /> compare legal, technical, and etiquette rules</li>
+                <li><CheckCircle2 size={16} /> make a careful, revisable ethical judgment</li>
+              </>
+            ) : isMoralAgentUnit ? (
+              <>
+                <li><CheckCircle2 size={16} /> explain how culture shapes moral learning</li>
+                <li><CheckCircle2 size={16} /> distinguish context from uncritical relativism</li>
+                <li><CheckCircle2 size={16} /> judge without stereotyping or erasing agency</li>
+              </>
+            ) : isCommunicationUnit ? (
+              <>
+                <li><CheckCircle2 size={16} /> identify the elements in a communication event</li>
+                <li><CheckCircle2 size={16} /> apply truthfulness, respect, fairness, and privacy</li>
+                <li><CheckCircle2 size={16} /> design an audience-aware verbal, non-verbal, and multimodal message</li>
+              </>
+            ) : isStsUnit ? (
+              <>
+                <li><CheckCircle2 size={16} /> distinguish science, technology, society, and context</li>
+                <li><CheckCircle2 size={16} /> trace reciprocal relationships and trade-offs</li>
+                <li><CheckCircle2 size={16} /> evaluate a community decision with an STS lens</li>
+              </>
+            ) : (
+              <>
+                <li><CheckCircle2 size={16} /> identify questions about the self</li>
+                <li><CheckCircle2 size={16} /> compare five useful perspectives</li>
+                <li><CheckCircle2 size={16} /> state a careful next question</li>
+              </>
+            )}
           </ul>
         </Card>
         <Card>
@@ -2164,7 +2387,15 @@ function UnitPage() {
       <Notice
         tone="info"
         title="Prerequisite note"
-        text="You’ll get more from this unit if you can describe what makes a question observable. Revisit Operationalize the idea if you want a quick refresher."
+        text={
+          hasNoPrerequisitesUnit
+            ? isMoralAgentUnit
+              ? "There are no prerequisites. Bring one familiar or unfamiliar practice and ask what it means, who benefits, who bears the burden, and what reasons support it."
+              : isStsUnit
+              ? "There are no prerequisites. Bring one ordinary technology or public system and ask what evidence, design choices, and social conditions shape it."
+              : "There are no prerequisites. Bring one ordinary situation to the lesson and ask what the people involved needed to understand."
+            : "You’ll get more from this unit if you can describe what makes a question observable. Revisit Operationalize the idea if you want a quick refresher."
+        }
       />
     </div>
   );
@@ -2396,29 +2627,86 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
   const isSociologyLesson = lesson.id === sociologyLessonId;
   const isAnthropologyLesson = lesson.id === anthropologyLessonId;
   const isPsychologyLesson = lesson.id === psychologyLessonId;
-  const markdown = isSociologyLesson
-    ? sociologyLessonMarkdown
+  const isEthicsLesson = lesson.id === ethicsLessonId;
+  const isMoralDilemmasLesson = lesson.id === moralDilemmasLessonId;
+  const isFreedomLesson = lesson.id === freedomLessonId;
+  const isCultureMoralBehaviorLesson = lesson.id === cultureMoralBehaviorLessonId;
+  const isCommunicationLesson = lesson.id === communicationLessonId;
+  const isPrinciplesEthicsLesson = lesson.id === principlesEthicsLessonId;
+  const isVerbalNonVerbalMultimodalLesson = lesson.id === verbalNonVerbalMultimodalLessonId;
+  const isStsLesson = lesson.id === stsLessonId;
+  const isHistoricalAntecedentsLesson = lesson.id === historicalAntecedentsLessonId;
+  const markdown = isVerbalNonVerbalMultimodalLesson
+    ? verbalNonVerbalMultimodalLessonMarkdown
+    : isPrinciplesEthicsLesson
+    ? principlesEthicsLessonMarkdown
+    : isCommunicationLesson
+    ? communicationLessonMarkdown
+    : isFreedomLesson
+    ? freedomLessonMarkdown
+    : isCultureMoralBehaviorLesson
+    ? cultureMoralBehaviorLessonMarkdown
+    : isMoralDilemmasLesson
+    ? moralDilemmasLessonMarkdown
+    : isEthicsLesson
+    ? ethicsLessonMarkdown
     : isAnthropologyLesson
     ? anthropologyLessonMarkdown
     : isPsychologyLesson
     ? psychologyLessonMarkdown
+    : isSociologyLesson
+    ? sociologyLessonMarkdown
+    : isHistoricalAntecedentsLesson
+    ? historicalAntecedentsLessonMarkdown
+    : isStsLesson
+    ? stsLessonMarkdown
     : isPhilosophicalLesson
       ? philosophicalLessonMarkdown
       : lessonMarkdown;
-  const startingProgress = isPhilosophicalLesson || isSociologyLesson || isAnthropologyLesson || isPsychologyLesson ? 0 : 12;
-  const lessonIntro = isPsychologyLesson
-    ? "Read for the different ways psychology explains self-concept, motivation, development, and behavior without turning any theory into a complete identity."
+  const lessonUnit = units.find((item) => item.id === lesson.unitId) ?? units[0];
+  const lessonCourse = subjects.find((item) => item.id === lessonUnit.subjectId) ?? subjects[0];
+  const startingProgress = isPhilosophicalLesson || isSociologyLesson || isAnthropologyLesson || isPsychologyLesson || isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isStsLesson || isHistoricalAntecedentsLesson ? 0 : 12;
+  const lessonIntro = isVerbalNonVerbalMultimodalLesson
+    ? "Read for the ways words, voice, movement, space, timing, visuals, sound, and layout work together to make a message usable."
+    : isPrinciplesEthicsLesson
+    ? "Read for the small choices that protect truth, dignity, fairness, privacy, access, and accountability across everyday messages."
+    : isCommunicationLesson
+    ? "Read for the choices that shape a message, the context that shapes interpretation, and the feedback that makes repair possible."
+    : isFreedomLesson
+    ? "Read for how meaningful choice, answerability, reasons, and fair consideration work together when a decision affects other people."
+    : isCultureMoralBehaviorLesson
+    ? "Read for how culture teaches expectations, how context improves moral judgment, and why difference does not end moral criticism."
+    : isMoralDilemmasLesson
+    ? "Read for the difference between a hard ethical problem and a genuine moral dilemma, then practice making the response proportionate and reviewable."
+    : isEthicsLesson
+    ? "Read for the kind of reason each standard gives, the people affected, and the evidence that keeps a judgment proportionate."
     : isAnthropologyLesson
     ? "Read for the cultural meanings, identities, and histories that shape the self without turning difference into a stereotype."
+    : isPsychologyLesson
+    ? "Read for the different ways psychology explains self-concept, motivation, development, and behavior without turning any theory into a complete identity."
     : isSociologyLesson
     ? "Read for the social settings, expectations, and audiences that shape identity without reducing a person to one label."
+    : isHistoricalAntecedentsLesson
+    ? "Read for the earlier conditions, practices, institutions, and movements that shaped later science and technology, including what the historical record leaves uncertain."
+    : isStsLesson
+    ? "Read for the relationships among evidence, design, context, and public choices; the point is to make the connections visible."
     : isPhilosophicalLesson
       ? "Read for the question each thinker is answering, the evidence each view favors, and the limits that keep comparison honest."
       : "Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view.";
-  const lessonOutline = isPsychologyLesson
+  const lessonOutline = isVerbalNonVerbalMultimodalLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Modes and relationships", "Worked examples", "Apply and transfer"]
+    : isPrinciplesEthicsLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "The ethical decision loop", "Worked examples", "Apply and transfer"]
+    : isCommunicationLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Communication models", "Worked examples", "Apply and transfer"]
+    : isPsychologyLesson
     ? ["Why this matters", "Vocabulary and key ideas", "Psychological lenses", "Worked examples", "Apply it and transfer"]
-    : isSociologyLesson || isAnthropologyLesson
+    : isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isSociologyLesson || isAnthropologyLesson
     ? ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"]
+    : isHistoricalAntecedentsLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Historical pathways and evidence", "Worked examples", "Apply and transfer"]
+    : isStsLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "The STS relationship", "Worked examples", "Apply and transfer"]
     : isPhilosophicalLesson
       ? ["Why this matters", "Vocabulary and key ideas", "Key philosophical perspectives", "Worked examples", "Apply it and transfer"]
       : ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"];
@@ -2443,9 +2731,9 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       <nav className="content-breadcrumb" aria-label="Lesson breadcrumb">
         <Link to="/subjects">Courses</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <Link to="/subjects/understanding-self">Understanding the Self</Link>
+        <Link to={`/subjects/${lessonCourse.id}`}>{lessonCourse.name}</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <Link to={`/units/${seedUnitId}`}>The Self from Various Perspectives</Link>
+        <Link to={`/units/${lessonUnit.id}`}>{lessonUnit.title}</Link>
         <ChevronRight size={14} aria-hidden="true" />
         <span aria-current="page">{lesson.title}</span>
       </nav>
@@ -2475,7 +2763,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       <div className="lesson-layout">
         <article className="reading-surface">
           <div className="reading-intro">
-            <Pill tone="violet">{isAnthropologyLesson || isPsychologyLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
+            <Pill tone="violet">{isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson ? "A 45-minute guided lesson" : isEthicsLesson ? "A 40-minute guided distinction" : isHistoricalAntecedentsLesson ? "A 45-minute guided history" : isStsLesson ? "A 40-minute STS introduction" : isAnthropologyLesson || isPsychologyLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
             <p>{lessonIntro}</p>
           </div>
           <LessonMarkdownContent markdown={markdown} />
@@ -2490,7 +2778,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
               <h3>{completed ? "Nice. The next useful step is practice." : "Finish with a quick practice set."}</h3>
               <p>Retrieval is where this idea starts becoming yours.</p>
             </div>
-            <Link className="button button-dark" to={`/practice?scope=lesson&course=understanding-self&unit=${seedUnitId}&lesson=${lesson.id}`}>
+            <Link className="button button-dark" to={practiceSelectionPath(normalizePracticeSelection("lesson", lessonCourse.id, lessonUnit.id, lesson.id))}>
               Practice this lesson <ArrowRight size={17} />
             </Link>
           </div>
@@ -2713,10 +3001,10 @@ function PracticeScopeChooser({
   onStart: () => void;
 }) {
   const selectedCourse = subjects.find((subject) => subject.id === selection.courseId) ?? subjects[0];
-  const selectedUnit = units.find((unit) => unit.id === selection.unitId) ?? units[0];
-  const selectedLesson = lessons.find((lesson) => lesson.id === selection.lessonId) ?? lessons[0];
   const courseUnits = unitsForCourse(selectedCourse.id);
+  const selectedUnit = courseUnits.find((unit) => unit.id === selection.unitId) ?? courseUnits[0] ?? units[0];
   const unitLessons = lessonsForUnit(selectedUnit.id);
+  const selectedLesson = unitLessons.find((lesson) => lesson.id === selection.lessonId) ?? unitLessons[0] ?? lessons[0];
   const policy = getAssessmentPolicy(selection.scope);
   const targetTitle =
     selection.scope === "course"
@@ -2898,8 +3186,10 @@ function PracticePage() {
 function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) {
   const policy = getAssessmentPolicy(selection.scope);
   const selectedCourse = subjects.find((subject) => subject.id === selection.courseId) ?? subjects[0];
-  const selectedUnit = units.find((unit) => unit.id === selection.unitId) ?? units[0];
-  const selectedLesson = lessons.find((lesson) => lesson.id === selection.lessonId) ?? lessons[0];
+  const courseUnits = unitsForCourse(selectedCourse.id);
+  const selectedUnit = courseUnits.find((unit) => unit.id === selection.unitId) ?? courseUnits[0] ?? units[0];
+  const unitLessons = lessonsForUnit(selectedUnit.id);
+  const selectedLesson = unitLessons.find((lesson) => lesson.id === selection.lessonId) ?? unitLessons[0] ?? lessons[0];
   const [items, setItems] = useState<PracticeItem[]>(practiceItems);
   const [current, setCurrent] = useState(0);
   const [answer, setAnswer] = useState<string | string[]>("");
@@ -4418,6 +4708,210 @@ function ResourcesPage() {
 }
 
 function ReceiptsPage() {
+  const profile = getProfile();
+  const [optedIn, setOptedIn] = useState(Boolean(profile.receiptsEnabled));
+  const [stellarConfig, setStellarConfig] = useState<StellarConfig | null>(null);
+  const [receipts, setReceipts] = useState<ReceiptRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [issuing, setIssuing] = useState(false);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void Promise.all([
+      apiRequest<StellarConfig>("/api/v1/config", { method: "GET" }),
+      apiRequest<{ receipts: ReceiptRecord[] }>("/api/v1/receipts", { method: "GET" }),
+    ]).then(([config, history]) => {
+      if (!active) return;
+      setStellarConfig(config);
+      if (history?.receipts) setReceipts(history.receipts);
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const savePreference = async (enabled: boolean) => {
+    setOptedIn(enabled);
+    writeStored("aralivo-profile", { ...profile, receiptsEnabled: enabled });
+    if (supabase) {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ receipts_enabled: enabled })
+          .eq("id", data.user.id);
+        if (error) {
+          setStatus("The preference could not be saved. Try again.");
+          return;
+        }
+      }
+    }
+    setStatus(enabled ? "Receipts enabled for this account." : "Receipts turned off.");
+  };
+
+  const issueCourseReceipt = async () => {
+    if (!stellarConfig?.stellar_enabled) {
+      setStatus("Stellar testnet is not configured on this deployment yet.");
+      return;
+    }
+    if (!optedIn) await savePreference(true);
+    setIssuing(true);
+    setStatus("Anchoring your course selection on Stellar testnet…");
+    const courseSlug = profile.subject.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const idempotencyKey = `course-selected-${courseSlug}-v1`;
+    const result = await apiRequest<{ receipt: ReceiptRecord; payload_hash: string }>(
+      "/api/v1/receipts/issue",
+      {
+        method: "POST",
+        headers: { "Idempotency-Key": idempotencyKey },
+        body: JSON.stringify({
+          content_identifier: `course:${courseSlug}`,
+          achievement_type: "course_selected",
+          content_version: "catalog-v1",
+          idempotency_key: idempotencyKey,
+        }),
+      },
+    );
+    setIssuing(false);
+    if (result?.receipt) {
+      setReceipts((current) => [result.receipt, ...current.filter((item) => item.id !== result.receipt.id)]);
+      setStatus(
+        result.receipt.status === "issued"
+          ? "Receipt issued. You can verify it on Stellar."
+          : "Receipt saved and waiting for Stellar confirmation.",
+      );
+    } else {
+      setStatus("The receipt could not be issued. Your study data was not affected.");
+    }
+  };
+
+  const networkLabel = stellarConfig?.stellar_network === "public" ? "Stellar public" : "Stellar testnet";
+  return (
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Private proof, if you want it"
+        title="Learning receipts"
+        description="A verifiable learning record - not a degree, grade, or official credential."
+        action={
+          <Pill tone={stellarConfig?.stellar_enabled ? "mint" : "neutral"}>
+            {stellarConfig?.stellar_enabled ? networkLabel : "Testnet not configured"}
+          </Pill>
+        }
+      />
+      <Card className="receipt-hero">
+        <div className="receipt-hero-icon">
+          <ShieldCheck size={25} />
+        </div>
+        <div>
+          <p className="eyebrow">Privacy-safe by design</p>
+          <h2>Keep a milestone without sharing your history.</h2>
+          <p>
+            Aralivo stores the readable receipt privately and anchors only its hash in Stellar account data.
+            Your name, email, notes, answers, and school records never go on-chain.
+          </p>
+          <p className="receipt-hero-note">
+            {optedIn ? "Receipts are enabled for this account." : "Nothing is shared until you opt in."}
+          </p>
+        </div>
+        <button
+          className={optedIn ? "button button-quiet" : "button button-dark"}
+          onClick={() => void savePreference(!optedIn)}
+          disabled={loading}
+        >
+          {optedIn ? "Turn off receipts" : "Enable receipts"}
+        </button>
+      </Card>
+      {status && (
+        <div className="practice-status" role="status" aria-live="polite">
+          {status}
+        </div>
+      )}
+      <div className="receipts-layout">
+        <Card>
+          <SectionTitle
+            title="Your receipt history"
+            action={
+              <button
+                className="button button-quiet"
+                onClick={() => void issueCourseReceipt()}
+                disabled={!optedIn || issuing || !stellarConfig?.stellar_enabled}
+              >
+                {issuing ? "Anchoring…" : "Record selected course"}
+              </button>
+            }
+          />
+          {!optedIn ? (
+            <div className="empty-inline">
+              <ShieldCheck size={22} />
+              <strong>Receipts are off.</strong>
+              <p>Enable receipts when you want to keep a verifiable learning record.</p>
+            </div>
+          ) : receipts.length > 0 ? (
+            <div className="receipt-history-list">
+              {receipts.map((receipt) => (
+                <div className="receipt-item" key={receipt.id}>
+                  <div className="receipt-item-icon">
+                    {receipt.status === "issued" ? <CheckCircle2 size={18} /> : <ShieldCheck size={18} />}
+                  </div>
+                  <div>
+                    <strong>{receipt.achievement_type.replaceAll("_", " ")}</strong>
+                    <p>
+                      {receipt.content_identifier} · {receipt.network} · {receipt.status}
+                    </p>
+                    <code translate="no">{receipt.payload_hash.slice(0, 16)}…</code>
+                  </div>
+                  {receipt.verification_url && receipt.status === "issued" ? (
+                    <a className="text-link" href={receipt.verification_url} target="_blank" rel="noreferrer">
+                      Verify <ExternalLink size={14} />
+                    </a>
+                  ) : (
+                    <Pill tone="neutral">{receipt.status}</Pill>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-inline">
+              <ShieldCheck size={22} />
+              <strong>No receipts yet.</strong>
+              <p>Record your selected course now, then add lesson milestones as you complete them.</p>
+            </div>
+          )}
+        </Card>
+        <Card>
+          <p className="eyebrow">What is public?</p>
+          <ul className="check-list">
+            <li>
+              <CheckCircle2 size={16} /> content identifier
+            </li>
+            <li>
+              <CheckCircle2 size={16} /> achievement type
+            </li>
+            <li>
+              <CheckCircle2 size={16} /> timestamp and content version
+            </li>
+            <li>
+              <X size={16} className="list-no" /> private notes or answers
+            </li>
+            <li>
+              <X size={16} className="list-no" /> name, email, or school records
+            </li>
+          </ul>
+          <p className="muted-copy receipt-explainer">
+            The on-chain entry contains only a receipt hash. Aralivo keeps the readable record in your account.
+          </p>
+          <Link className="text-link" to="/settings#privacy">
+            Read the privacy note <ArrowRight size={14} />
+          </Link>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ReceiptsPageLegacy() {
   const [optedIn, setOptedIn] = useState(false);
   return (
     <div className="page-stack">
@@ -4528,6 +5022,25 @@ function SettingsPage({ onSignOut }: { onSignOut: () => void }) {
   const selectSection = (next: string) => {
     setSection(next);
     window.history.replaceState(null, "", `/settings#${next}`);
+  };
+  const updateReceiptPreference = async (enabled: boolean) => {
+    const nextProfile = { ...profile, receiptsEnabled: enabled };
+    setProfile(nextProfile);
+    writeStored("aralivo-profile", nextProfile);
+    if (supabase) {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ receipts_enabled: enabled })
+          .eq("id", data.user.id);
+        if (error) {
+          setStatus("Receipt preference could not be saved.");
+          return;
+        }
+      }
+    }
+    setStatus("Receipt preference updated.");
   };
   const saveProfile = async () => {
     writeStored("aralivo-profile", profile);
@@ -4811,8 +5324,8 @@ function SettingsPage({ onSignOut }: { onSignOut: () => void }) {
               <SettingsToggle
                 title="Issue privacy-safe receipts"
                 description="Never includes notes, answers, grades, email, or school records."
-                enabled={false}
-                onChange={() => setStatus("Receipt preference updated.")}
+                enabled={Boolean(profile.receiptsEnabled)}
+                onChange={(enabled) => void updateReceiptPreference(enabled)}
               />
               <Notice
                 tone="info"
@@ -5330,7 +5843,7 @@ function SettingsToggle({
   title: string;
   description: string;
   enabled: boolean;
-  onChange: () => void;
+  onChange: (enabled: boolean) => void;
 }) {
   const [value, setValue] = useState(enabled);
   return (
@@ -5345,8 +5858,9 @@ function SettingsToggle({
       <button
         className={value ? "toggle active" : "toggle"}
         onClick={() => {
-          setValue((current) => !current);
-          onChange();
+          const nextValue = !value;
+          setValue(nextValue);
+          onChange(nextValue);
         }}
         role="switch"
         aria-checked={value}
