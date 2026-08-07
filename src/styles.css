@@ -1967,8 +1967,228 @@ textarea::placeholder,
   font-size: 0.72rem;
   font-weight: 800;
 }
+.content-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 23px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.content-breadcrumb a {
+  color: var(--primary-strong);
+  font-weight: 800;
+}
+.content-breadcrumb svg {
+  color: var(--border);
+}
 .practice-page {
   max-width: 860px;
+}
+.practice-chooser {
+  max-width: 1020px;
+}
+.practice-steps {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: -8px 0 22px;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+.practice-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.practice-steps span {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 0.7rem;
+}
+.practice-steps li.active {
+  color: var(--primary-strong);
+}
+.practice-steps li.active span {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+.scope-switcher {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: var(--surface-soft);
+}
+.scope-tab {
+  display: grid;
+  gap: 3px;
+  min-height: 64px;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  font-weight: 800;
+}
+.scope-tab span {
+  color: var(--ink);
+  font-family: Nunito, sans-serif;
+  font-size: 0.9rem;
+}
+.scope-tab small {
+  font-size: 0.68rem;
+}
+.scope-tab:hover,
+.scope-tab.active {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--primary-strong);
+}
+.scope-tab.active span {
+  color: var(--primary-strong);
+}
+.scope-panel {
+  padding: 25px;
+}
+.scope-panel-head,
+.scope-ready-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.scope-panel-head {
+  align-items: center;
+  margin-bottom: 20px;
+}
+.scope-panel-head h2 {
+  margin-bottom: 0;
+}
+.scope-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.scope-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 78px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: white;
+  color: var(--ink);
+  text-align: left;
+}
+.scope-option:hover,
+.scope-option.selected {
+  border-color: var(--primary);
+  background: #f5f3ff;
+}
+.scope-option > svg {
+  flex: 0 0 auto;
+  color: var(--primary-strong);
+}
+.scope-option-symbol,
+.scope-option-number {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 13px;
+  background: #e8e5ff;
+  color: var(--primary-strong);
+  font-weight: 900;
+}
+.scope-option-symbol.subject-mint {
+  background: #d8f2e9;
+  color: var(--mint-strong);
+}
+.scope-option-symbol.subject-coral {
+  background: #f8d9d3;
+  color: var(--danger-text);
+}
+.scope-option-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.scope-option-copy strong {
+  font-size: 0.84rem;
+}
+.scope-option-copy small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+.scope-choice-stack {
+  display: grid;
+  gap: 17px;
+}
+.scope-select-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.scope-select-field {
+  margin-bottom: 0;
+}
+.scope-ready-card {
+  align-items: center;
+  margin-top: 14px;
+  padding: 21px;
+  border: 1px solid #b6e0d2;
+  border-radius: 19px;
+  background: #ecfaf5;
+}
+.scope-ready-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: #d7f2e8;
+  color: var(--mint-strong);
+}
+.scope-ready-copy {
+  flex: 1;
+  min-width: 0;
+}
+.scope-ready-copy h2 {
+  margin-bottom: 5px;
+}
+.scope-ready-copy p {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.scope-ready-copy .muted-copy {
+  margin-top: 10px;
+  font-size: 0.72rem;
+}
+.practice-context {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 .practice-top {
   display: flex;
@@ -3585,6 +3805,32 @@ textarea::placeholder,
   }
 }
 
+@media (max-width: 680px) {
+  .practice-steps {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .scope-switcher,
+  .scope-option-grid,
+  .scope-select-row {
+    grid-template-columns: 1fr;
+  }
+  .scope-panel {
+    padding: 19px 16px;
+  }
+  .scope-panel-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .scope-ready-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .scope-ready-card .button {
+    width: 100%;
+  }
+}
 @media (max-width: 560px) {
   .task-form-grid {
     grid-template-columns: 1fr;

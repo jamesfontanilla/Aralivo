@@ -58,6 +58,7 @@ import {
 } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { appUrl, supabase } from "./lib/supabase";
+import { getAssessmentPolicy, type PracticeScope } from "./lib/contentParser";
 import "./styles.css";
 
 const subjects = [
@@ -124,6 +125,26 @@ const units = [
     duration: "35 min",
     state: "locked",
   },
+  {
+    id: "interaction-basics",
+    subjectId: "human-computer",
+    title: "Designing for action",
+    label: "Unit 1",
+    progress: 38,
+    lessons: 1,
+    duration: "9 min",
+    state: "current",
+  },
+  {
+    id: "power-and-choices",
+    subjectId: "ethics",
+    title: "Power and participation",
+    label: "Unit 1",
+    progress: 24,
+    lessons: 1,
+    duration: "10 min",
+    state: "current",
+  },
 ];
 
 const lessons = [
@@ -159,7 +180,7 @@ const lessons = [
   },
   {
     id: "affordances",
-    unitId: "human-computer",
+    unitId: "interaction-basics",
     title: "Affordances",
     eyebrow: "Lesson 1 of 4",
     duration: "9 min",
@@ -167,7 +188,71 @@ const lessons = [
     progress: 0,
     outcome: "Spot the cues that help people understand what to do next.",
   },
+  {
+    id: "who-decides",
+    unitId: "power-and-choices",
+    title: "Who gets to decide?",
+    eyebrow: "Lesson 1 of 1",
+    duration: "10 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Notice how technology choices distribute voice, access, and responsibility.",
+  },
 ];
+
+type PracticeSelection = {
+  scope: PracticeScope;
+  courseId: string;
+  unitId: string;
+  lessonId: string;
+};
+
+function unitsForCourse(courseId: string) {
+  return units.filter((unit) => unit.subjectId === courseId);
+}
+
+function lessonsForUnit(unitId: string) {
+  return lessons.filter((lesson) => lesson.unitId === unitId);
+}
+
+function normalizePracticeSelection(
+  scope: PracticeScope,
+  courseId = subjects[0].id,
+  unitId?: string,
+  lessonId?: string,
+): PracticeSelection {
+  const course = subjects.find((item) => item.id === courseId) ?? subjects[0];
+  const courseUnits = unitsForCourse(course.id);
+  const unit = courseUnits.find((item) => item.id === unitId) ?? courseUnits[0] ?? units[0];
+  const unitLessons = lessonsForUnit(unit.id);
+  const lesson = unitLessons.find((item) => item.id === lessonId) ?? unitLessons[0] ?? lessons[0];
+  return { scope, courseId: course.id, unitId: unit.id, lessonId: lesson.id };
+}
+
+function practiceSelectionFromSearch(search: string): PracticeSelection {
+  const params = new URLSearchParams(search);
+  const requestedScope = params.get("scope");
+  const scope: PracticeScope =
+    requestedScope === "course" || requestedScope === "unit" || requestedScope === "lesson"
+      ? requestedScope
+      : "lesson";
+  return normalizePracticeSelection(
+    scope,
+    params.get("course") ?? undefined,
+    params.get("unit") ?? undefined,
+    params.get("lesson") ?? undefined,
+  );
+}
+
+function practiceSelectionPath(selection: PracticeSelection) {
+  const params = new URLSearchParams({
+    scope: selection.scope,
+    course: selection.courseId,
+    unit: selection.unitId,
+    lesson: selection.lessonId,
+  });
+  return `/practice?${params.toString()}`;
+}
 
 const loopSteps = [
   { label: "Learn", text: "Build a small, useful mental model.", icon: BookOpen },
@@ -1705,11 +1790,11 @@ function SubjectsPage() {
     <div className="page-stack">
       <PageHeader
         eyebrow="Your learning map"
-        title="Subjects"
-        description="Follow a clear path, or choose the next right-sized thing."
+        title="Courses"
+        description="Follow a clear course path, or choose the next right-sized lesson."
         action={
           <button className="button button-primary">
-            <Plus size={17} /> Add subject
+            <Plus size={17} /> Add course
           </button>
         }
       />
@@ -1719,8 +1804,8 @@ function SubjectsPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search subjects"
-            aria-label="Search subjects"
+            placeholder="Search courses"
+            aria-label="Search courses"
           />
         </label>
         <button className="button button-quiet">
@@ -1737,10 +1822,10 @@ function SubjectsPage() {
           <div className="empty-icon">
             <Search size={23} />
           </div>
-          <h2>No subjects found</h2>
-          <p>Try another search, or add your subject manually.</p>
+          <h2>No courses found</h2>
+          <p>Try another search, or add your course manually.</p>
           <button className="button button-primary">
-            <Plus size={16} /> Add subject
+            <Plus size={16} /> Add course
           </button>
         </Card>
       )}
@@ -1752,7 +1837,7 @@ function SubjectsPage() {
           <p className="eyebrow">Build your own path</p>
           <h2>Can’t find a course in the catalog?</h2>
           <p className="muted-copy">
-            Create a private subject with your own units and learning actions. Nothing needs to
+            Create a private course with your own units and learning actions. Nothing needs to
             match a school system.
           </p>
         </div>
@@ -1768,8 +1853,15 @@ function SubjectPage() {
   const { subjectId } = useParams();
   const subject = subjects.find((item) => item.id === subjectId) ?? subjects[0];
   const subjectUnits = units.filter((unit) => unit.subjectId === subject.id);
+  const nextUnit = subjectUnits.find((unit) => unit.state !== "locked") ?? subjectUnits[0];
+  const nextLesson = lessons.find((lesson) => lesson.unitId === nextUnit?.id) ?? lessons[0];
   return (
     <div className="page-stack">
+      <nav className="content-breadcrumb" aria-label="Course breadcrumb">
+        <Link to="/subjects">Courses</Link>
+        <ChevronRight size={14} aria-hidden="true" />
+        <span aria-current="page">{subject.name}</span>
+      </nav>
       <div className={`subject-hero subject-${subject.color}`}>
         <div className="subject-hero-symbol">{subject.icon}</div>
         <div>
@@ -1794,9 +1886,9 @@ function SubjectPage() {
             eyebrow="The learning path"
             title="Units"
             action={
-              <button className="text-link">
+              <Link className="text-link" to={practiceSelectionPath(normalizePracticeSelection("course", subject.id))}>
                 Course overview <ArrowRight size={15} />
-              </button>
+              </Link>
             }
           />
           <div className="unit-list">
@@ -1810,7 +1902,7 @@ function SubjectPage() {
             <p className="eyebrow">Recommended next</p>
             <h2>{subject.next}</h2>
             <p className="muted-copy">A small step into the ideas your next unit builds on.</p>
-            <Link className="button button-dark button-full" to="/lessons/sampling-bias">
+            <Link className="button button-dark button-full" to={`/lessons/${nextLesson.id}`}>
               Open lesson <ArrowRight size={16} />
             </Link>
           </Card>
@@ -1882,16 +1974,25 @@ function UnitPage() {
   const { unitId } = useParams();
   const unit = units.find((item) => item.id === unitId) ?? units[1];
   const unitLessons = lessons.filter((lesson) => lesson.unitId === unit.id);
+  const course = subjects.find((item) => item.id === unit.subjectId) ?? subjects[0];
+  const unitSelection = normalizePracticeSelection("unit", course.id, unit.id);
   return (
     <div className="page-stack">
+      <nav className="content-breadcrumb" aria-label="Unit breadcrumb">
+        <Link to="/subjects">Courses</Link>
+        <ChevronRight size={14} aria-hidden="true" />
+        <Link to={`/subjects/${course.id}`}>{course.name}</Link>
+        <ChevronRight size={14} aria-hidden="true" />
+        <span aria-current="page">{unit.title}</span>
+      </nav>
       <PageHeader
-        eyebrow={`Research Methods · ${unit.label}`}
+        eyebrow={`${course.name} · ${unit.label}`}
         title={unit.title}
         description="A short path from a useful question to evidence you can trust."
         action={
-          <button className="button button-primary" onClick={() => undefined}>
+          <Link className="button button-primary" to={practiceSelectionPath(unitSelection)}>
             <Target size={16} /> Review unit · 30 items
-          </button>
+          </Link>
         }
       />
       <div className="unit-overview-grid">
@@ -1978,6 +2079,9 @@ function LessonRow({ lesson, index }: { lesson: (typeof lessons)[number]; index:
 function LessonPage() {
   const { lessonId } = useParams();
   const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
+  const unit = units.find((item) => item.id === lesson.unitId) ?? units[1];
+  const course = subjects.find((item) => item.id === unit.subjectId) ?? subjects[0];
+  const lessonSelection = normalizePracticeSelection("lesson", course.id, unit.id, lesson.id);
   const noteKey = `aralivo-notes-${getProfile().email}`;
   const [note, setNote] = useState(() => window.localStorage.getItem(noteKey) ?? "");
   const [saved, setSaved] = useState(false);
@@ -1996,13 +2100,15 @@ function LessonPage() {
   };
   return (
     <div className="lesson-page page-stack">
-      <div className="lesson-breadcrumb">
-        <Link to="/subjects">Subjects</Link>
+      <nav className="content-breadcrumb" aria-label="Lesson breadcrumb">
+        <Link to="/subjects">Courses</Link>
         <ChevronRight size={14} />
-        <Link to="/subjects/research">Research Methods</Link>
+        <Link to={`/subjects/${course.id}`}>{course.name}</Link>
         <ChevronRight size={14} />
-        <span>{lesson.title}</span>
-      </div>
+        <Link to={`/units/${unit.id}`}>{unit.title}</Link>
+        <ChevronRight size={14} />
+        <span aria-current="page">{lesson.title}</span>
+      </nav>
       <div className="lesson-header">
         <div>
           <p className="eyebrow">
@@ -2104,7 +2210,7 @@ function LessonPage() {
               </h3>
               <p>Retrieval is where this idea starts becoming yours.</p>
             </div>
-            <Link className="button button-dark" to="/practice">
+            <Link className="button button-dark" to={practiceSelectionPath(lessonSelection)}>
               Practice this lesson <ArrowRight size={17} />
             </Link>
           </div>
@@ -2302,7 +2408,203 @@ const practiceItems: PracticeItem[] = [
   },
 ];
 
+function PracticeScopeChooser({
+  selection,
+  onChange,
+  onStart,
+}: {
+  selection: PracticeSelection;
+  onChange: (selection: PracticeSelection) => void;
+  onStart: () => void;
+}) {
+  const selectedCourse = subjects.find((subject) => subject.id === selection.courseId) ?? subjects[0];
+  const selectedUnit = units.find((unit) => unit.id === selection.unitId) ?? units[0];
+  const selectedLesson = lessons.find((lesson) => lesson.id === selection.lessonId) ?? lessons[0];
+  const courseUnits = unitsForCourse(selectedCourse.id);
+  const unitLessons = lessonsForUnit(selectedUnit.id);
+  const policy = getAssessmentPolicy(selection.scope);
+  const targetTitle =
+    selection.scope === "course"
+      ? selectedCourse.name
+      : selection.scope === "unit"
+        ? selectedUnit.title
+        : selectedLesson.title;
+  const targetDescription =
+    selection.scope === "course"
+      ? `${courseUnits.length} units · a cumulative path through this course`
+      : selection.scope === "unit"
+        ? `${unitLessons.length} lessons · a review across this unit`
+        : `${selectedUnit.title} · one focused lesson at a time`;
+  const updateScope = (scope: PracticeScope) =>
+    onChange(normalizePracticeSelection(scope, selection.courseId, selection.unitId, selection.lessonId));
+  const chooseCourse = (courseId: string) => onChange(normalizePracticeSelection(selection.scope, courseId));
+  const chooseUnit = (unitId: string) => {
+    const unit = units.find((item) => item.id === unitId) ?? units[0];
+    onChange(normalizePracticeSelection(selection.scope, unit.subjectId, unit.id));
+  };
+  const chooseLesson = (lessonId: string) => {
+    const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
+    const unit = units.find((item) => item.id === lesson.unitId) ?? units[0];
+    onChange(normalizePracticeSelection(selection.scope, unit.subjectId, unit.id, lesson.id));
+  };
+  return (
+    <div className="practice-page page-stack practice-chooser">
+      <Link className="back-link" to="/today">
+        <ChevronRight size={15} className="rotate-180" /> Back to Today
+      </Link>
+      <PageHeader
+        eyebrow="Practice setup"
+        title="Choose where to practice"
+        description="The questionnaire stays familiar. Choose the learning boundary first so the next set has the right context."
+      />
+      <ol className="practice-steps" aria-label="Practice setup steps">
+        <li className="active"><span>1</span> Choose a scope</li>
+        <li><span>2</span> Choose content</li>
+        <li><span>3</span> Practice</li>
+      </ol>
+      <div className="scope-switcher" role="radiogroup" aria-label="Practice scope">
+        {(["course", "unit", "lesson"] as PracticeScope[]).map((scope) => {
+          const scopePolicy = getAssessmentPolicy(scope);
+          return (
+            <button
+              className={selection.scope === scope ? "scope-tab active" : "scope-tab"}
+              key={scope}
+              type="button"
+              role="radio"
+              aria-checked={selection.scope === scope}
+              onClick={() => updateScope(scope)}
+            >
+              <span>{scope === "course" ? "Course" : scope === "unit" ? "Unit" : "Lesson"}</span>
+              <small>{scopePolicy.selectionCount} items</small>
+            </button>
+          );
+        })}
+      </div>
+      <Card className="scope-panel">
+        <div className="scope-panel-head">
+          <div>
+            <p className="eyebrow">Step 1 · Choose content</p>
+            <h2>{selection.scope === "course" ? "Which course?" : selection.scope === "unit" ? "Which unit?" : "Which lesson?"}</h2>
+          </div>
+          <Pill tone="violet">{policy.label}</Pill>
+        </div>
+        {selection.scope === "course" ? (
+          <div className="scope-option-grid">
+            {subjects.map((course) => (
+              <button
+                className={course.id === selectedCourse.id ? "scope-option selected" : "scope-option"}
+                key={course.id}
+                type="button"
+                aria-pressed={course.id === selectedCourse.id}
+                onClick={() => chooseCourse(course.id)}
+              >
+                <span className={`scope-option-symbol subject-${course.color}`}>{course.icon}</span>
+                <span className="scope-option-copy">
+                  <strong>{course.name}</strong>
+                  <small>{course.code} · {unitsForCourse(course.id).length} units · {course.progress}% underway</small>
+                </span>
+                {course.id === selectedCourse.id && <CheckCircle2 size={18} aria-hidden="true" />}
+              </button>
+            ))}
+          </div>
+        ) : selection.scope === "unit" ? (
+          <div className="scope-choice-stack">
+            <label className="field scope-select-field">
+              <span>Course</span>
+              <select value={selectedCourse.id} onChange={(event) => chooseCourse(event.target.value)}>
+                {subjects.map((course) => <option value={course.id} key={course.id}>{course.name}</option>)}
+              </select>
+            </label>
+            <div className="scope-option-grid">
+              {courseUnits.map((unit) => (
+                <button
+                  className={unit.id === selectedUnit.id ? "scope-option selected" : "scope-option"}
+                  key={unit.id}
+                  type="button"
+                  aria-pressed={unit.id === selectedUnit.id}
+                  onClick={() => chooseUnit(unit.id)}
+                >
+                  <span className="scope-option-number">{unit.label.replace("Unit ", "")}</span>
+                  <span className="scope-option-copy"><strong>{unit.title}</strong><small>{unit.lessons} lessons · {unit.duration} · {unit.progress}% complete</small></span>
+                  {unit.id === selectedUnit.id && <CheckCircle2 size={18} aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="scope-choice-stack">
+            <div className="scope-select-row">
+              <label className="field scope-select-field">
+                <span>Course</span>
+                <select value={selectedCourse.id} onChange={(event) => chooseCourse(event.target.value)}>
+                  {subjects.map((course) => <option value={course.id} key={course.id}>{course.name}</option>)}
+                </select>
+              </label>
+              <label className="field scope-select-field">
+                <span>Unit</span>
+                <select value={selectedUnit.id} onChange={(event) => chooseUnit(event.target.value)}>
+                  {courseUnits.map((unit) => <option value={unit.id} key={unit.id}>{unit.title}</option>)}
+                </select>
+              </label>
+            </div>
+            <div className="scope-option-grid">
+              {unitLessons.map((lesson) => (
+                <button
+                  className={lesson.id === selectedLesson.id ? "scope-option selected" : "scope-option"}
+                  key={lesson.id}
+                  type="button"
+                  aria-pressed={lesson.id === selectedLesson.id}
+                  onClick={() => chooseLesson(lesson.id)}
+                >
+                  <span className="scope-option-number"><BookOpen size={16} aria-hidden="true" /></span>
+                  <span className="scope-option-copy"><strong>{lesson.title}</strong><small>{lesson.duration} · {lesson.progress}% complete</small></span>
+                  {lesson.id === selectedLesson.id && <CheckCircle2 size={18} aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
+      <Card className="scope-ready-card">
+        <div className="scope-ready-icon"><Target size={20} /></div>
+        <div className="scope-ready-copy">
+          <p className="eyebrow">Ready to practice</p>
+          <h2>{targetTitle}</h2>
+          <p>{targetDescription}</p>
+          <p className="muted-copy">Validated content will supply the {policy.selectionCount}-item selection in production. This UI opens the same questionnaire preview while lesson banks are being authored.</p>
+        </div>
+        <button className="button button-dark" type="button" onClick={onStart}>
+          Start questionnaire <ArrowRight size={17} />
+        </button>
+      </Card>
+    </div>
+  );
+}
+
 function PracticePage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [selection, setSelection] = useState(() => practiceSelectionFromSearch(location.search));
+  const [started, setStarted] = useState(false);
+  useEffect(() => {
+    if (!started) setSelection(practiceSelectionFromSearch(location.search));
+  }, [location.search, started]);
+  const updateSelection = (nextSelection: PracticeSelection) => {
+    setSelection(nextSelection);
+    navigate(practiceSelectionPath(nextSelection), { replace: true });
+  };
+  return started ? (
+    <PracticeQuestionnaire selection={selection} />
+  ) : (
+    <PracticeScopeChooser selection={selection} onChange={updateSelection} onStart={() => setStarted(true)} />
+  );
+}
+
+function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) {
+  const policy = getAssessmentPolicy(selection.scope);
+  const selectedCourse = subjects.find((subject) => subject.id === selection.courseId) ?? subjects[0];
+  const selectedUnit = units.find((unit) => unit.id === selection.unitId) ?? units[0];
+  const selectedLesson = lessons.find((lesson) => lesson.id === selection.lessonId) ?? lessons[0];
   const [current, setCurrent] = useState(0);
   const [answer, setAnswer] = useState<string | string[]>("");
   const [ordering, setOrdering] = useState<string[]>(practiceItems[6].items ?? []);
@@ -2391,9 +2693,9 @@ function PracticePage() {
     return (
       <div className="page-stack">
         <PageHeader
-          eyebrow="Lesson practice · 15 items"
+          eyebrow={`${policy.label} · 15-item interactive set`}
           title="You made it through."
-          description="The point was to notice what your reasoning does next."
+          description={`The point was to notice what your reasoning does next in ${selectedCourse.name}.`}
         />
         <Card className="practice-summary">
           <div className="summary-orb">
@@ -2417,7 +2719,7 @@ function PracticePage() {
             </div>
           </div>
           <div className="summary-actions">
-            <Link className="button button-primary" to="/lessons/sampling-bias">
+            <Link className="button button-primary" to={`/lessons/${selectedLesson.id}`}>
               Review lesson <ArrowRight size={16} />
             </Link>
             <Link className="button button-quiet" to="/today">
@@ -2432,13 +2734,14 @@ function PracticePage() {
     <div className="practice-page page-stack">
       <div className="practice-top">
         <div>
-          <Link className="back-link" to="/lessons/sampling-bias">
+          <Link className="back-link" to={`/lessons/${selectedLesson.id}`}>
             <ChevronRight size={15} className="rotate-180" /> Back to lesson
           </Link>
-          <p className="eyebrow">Lesson practice · Exactly 15 items</p>
-          <h1>Sampling & bias</h1>
+          <p className="eyebrow">{policy.label} · 15-item interactive set</p>
+          <h1>{selectedLesson.title}</h1>
+          <p className="practice-context">{selectedUnit.title} · {selectedCourse.name}</p>
         </div>
-        <Link className="button button-quiet" to="/lessons/sampling-bias">
+        <Link className="button button-quiet" to={`/lessons/${selectedLesson.id}`}>
           Save & exit
         </Link>
       </div>

@@ -17,3 +17,9 @@ The top-level object carries bank identity, lesson identity, content version, an
 Default editorial target: 45 questions per lesson. The validator supports 36–54 only with an editorial note. Selection sizes are 15, 30, and 50; a pool is never duplicated to fill an assessment.
 
 No concrete lesson Markdown or question-bank JSON file is generated in this repository.
+
+## Runtime parser and learner boundary
+
+`src/lib/contentParser.ts` parses the Markdown contract and question-bank JSON shape without generating either file. It validates the required front matter, ordered lesson sections, content-length targets, source and rights declarations, question distributions, type-specific shapes, and outcome coverage. `stripAnswerKey` removes authoring-only answer, explanation, misconception, provenance, and originality fields before question data can be used by learner-facing UI.
+
+The practice experience uses the same selection policies as the authoring contract: lesson practice (15), unit review (30), and course assessment (50). The current questionnaire screen is an interactive 15-item UI preview until validated lesson banks are authored; it does not create seed content.
