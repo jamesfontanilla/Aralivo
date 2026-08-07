@@ -2138,7 +2138,7 @@ function UnitPage() {
           <p className="eyebrow">Learning outcomes</p>
           <ul className="check-list">
               <li><CheckCircle2 size={16} /> identify questions about the self</li>
-              <li><CheckCircle2 size={16} /> compare four useful perspectives</li>
+              <li><CheckCircle2 size={16} /> compare five useful perspectives</li>
               <li><CheckCircle2 size={16} /> state a careful next question</li>
           </ul>
         </Card>
