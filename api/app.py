@@ -73,6 +73,7 @@ SEED_LESSON_ID = "understanding-self.the-self-from-various-perspectives.introduc
 PHILOSOPHICAL_LESSON_ID = "understanding-self.the-self-from-various-perspectives.philosophical-perspectives-of-the-self"
 SOCIOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-sociology"
 ANTHROPOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-anthropology"
+PSYCHOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-psychology"
 SEED_QUESTIONS_ROOT = (
     Path(__file__).resolve().parents[1]
     / "data"
@@ -86,6 +87,7 @@ SEED_QUESTION_PATHS = {
     PHILOSOPHICAL_LESSON_ID: SEED_QUESTIONS_ROOT / "philosophical-perspectives-of-the-self" / "questions.json",
     SOCIOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-sociology" / "questions.json",
     ANTHROPOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-anthropology" / "questions.json",
+    PSYCHOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-psychology" / "questions.json",
 }
 
 
