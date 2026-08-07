@@ -60,9 +60,11 @@ import type { User } from "@supabase/supabase-js";
 import { appUrl, supabase } from "./lib/supabase";
 import { getAssessmentPolicy, type PracticeScope } from "./lib/contentParser";
 import lessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/introduction-to-the-self/lesson.md?raw";
+import philosophicalLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/philosophical-perspectives-of-the-self/lesson.md?raw";
 import "./styles.css";
 
 const seedLessonId = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self";
+const philosophicalLessonId = "understanding-self.the-self-from-various-perspectives.philosophical-perspectives-of-the-self";
 const seedUnitId = "the-self-from-various-perspectives";
 
 const subjects = [
@@ -74,7 +76,7 @@ const subjects = [
     icon: "⌁",
     progress: 0,
     next: "Start with Introduction to the Self",
-    lessons: 1,
+    lessons: 2,
   },
   {
     id: "philippine-history",
@@ -187,8 +189,8 @@ const units: CourseUnit[] = [
     title: "The Self from Various Perspectives",
     label: "Unit 1",
     progress: 0,
-    lessons: 1,
-    duration: "30 min",
+    lessons: 2,
+    duration: "75 min",
     state: "current",
   },
 ];
@@ -203,6 +205,16 @@ const lessons: CourseLesson[] = [
     state: "not-started",
     progress: 0,
     outcome: "Compare perspectives on the self and build a careful, revisable account.",
+  },
+  {
+    id: philosophicalLessonId,
+    unitId: seedUnitId,
+    title: "Philosophical Perspectives of the Self",
+    eyebrow: "Lesson 2",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Compare philosophical accounts of identity, consciousness, body, and continuity.",
   },
 ];
 
@@ -307,8 +319,8 @@ function renderInlineLessonText(text: string, keyPrefix: string) {
   });
 }
 
-function LessonMarkdownContent() {
-  const body = lessonMarkdown.split("\n---\n").slice(1).join("\n---\n");
+function LessonMarkdownContent({ markdown }: { markdown: string }) {
+  const body = markdown.split("\n---\n").slice(1).join("\n---\n");
   const lines = body.split("\n");
   const blocks: Array<
     | { type: "line"; line: string; index: number }
@@ -1703,13 +1715,13 @@ function TodayPage() {
           <h2>
             Start with a useful question
           </h2>
-          <p>Begin with an introduction to the self, then test your thinking with a 15-item practice set.</p>
+          <p>Begin with an introduction to the self, then compare philosophical perspectives in the next lesson.</p>
           <div className="pebble-meta">
             <span>
               <BookOpen size={15} /> Understanding the Self
             </span>
             <span>
-              <Target size={15} /> 1 lesson · 30 min
+              <Target size={15} /> 2 lessons · 75 min
             </span>
           </div>
           <div className="pebble-actions">
@@ -1761,8 +1773,8 @@ function TodayPage() {
           <Card className="recent-card">
             <div className="empty-inline">
               <BookOpen size={22} />
-              <strong>Introduction to the Self is ready.</strong>
-              <p>Open the course to compare perspectives and build a careful, revisable account.</p>
+              <strong>Two lessons are ready.</strong>
+              <p>Start with the introduction, then compare philosophical accounts of the self and identity.</p>
             </div>
           </Card>
         </div>
@@ -1971,7 +1983,7 @@ function SubjectPage() {
           <SectionTitle
             eyebrow="The learning path"
             title="Units"
-            action={<Pill tone="mint">1 lesson ready</Pill>}
+            action={<Pill tone="mint">{subjectUnits.reduce((total, unit) => total + unit.lessons, 0)} lessons ready</Pill>}
           />
           {subjectUnits.length > 0 ? (
             <div className="unit-list">
@@ -2161,7 +2173,9 @@ function LessonRow({ lesson, index }: { lesson: (typeof lessons)[number]; index:
 }
 
 function LessonPage() {
-  return <SeedLessonPage />;
+  const { lessonId: routeLessonId } = useParams();
+  return <SeedLessonPage lessonId={routeLessonId ?? seedLessonId} />;
+  /* eslint-disable react-hooks/rules-of-hooks -- legacy route implementation retained below for future generated content. */
   /* istanbul ignore next -- retained route contract for generated lesson content. */
   const { lessonId } = useParams();
   const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
@@ -2338,8 +2352,16 @@ function LessonPage() {
     </div>
   );
 }
+/* eslint-enable react-hooks/rules-of-hooks */
 
-function SeedLessonPage() {
+function SeedLessonPage({ lessonId }: { lessonId: string }) {
+  const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
+  const isPhilosophicalLesson = lesson.id === philosophicalLessonId;
+  const markdown = isPhilosophicalLesson ? philosophicalLessonMarkdown : lessonMarkdown;
+  const startingProgress = isPhilosophicalLesson ? 0 : 12;
+  const lessonOutline = isPhilosophicalLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Key philosophical perspectives", "Worked examples", "Apply it and transfer"]
+    : ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"];
   const [note, setNote] = useState(() => window.localStorage.getItem(`aralivo-notes-${getProfile().email}`) ?? "");
   const [saved, setSaved] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -2365,13 +2387,13 @@ function SeedLessonPage() {
         <ChevronRight size={14} aria-hidden="true" />
         <Link to={`/units/${seedUnitId}`}>The Self from Various Perspectives</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <span aria-current="page">Introduction to the Self</span>
+        <span aria-current="page">{lesson.title}</span>
       </nav>
       <div className="lesson-header">
         <div>
-          <p className="eyebrow">Lesson 1 · 30 min</p>
-          <h1>Introduction to the Self</h1>
-          <p>Compare perspectives on the self and build a careful, revisable account.</p>
+          <p className="eyebrow">{lesson.eyebrow} · {lesson.duration}</p>
+          <h1>{lesson.title}</h1>
+          <p>{lesson.outcome}</p>
         </div>
         <div className="lesson-header-actions">
           <button className="button button-primary" onClick={() => setCompleted(true)}>
@@ -2386,17 +2408,17 @@ function SeedLessonPage() {
       </div>
       <div className="lesson-progress-row">
         <span>Lesson progress</span>
-        <ProgressBar value={completed ? 100 : 12} />
-        <strong>{completed ? 100 : 12}%</strong>
+        <ProgressBar value={completed ? 100 : startingProgress} />
+        <strong>{completed ? 100 : startingProgress}%</strong>
         {saved && <span className="saved-message" role="status"><Check size={14} /> Saved</span>}
       </div>
       <div className="lesson-layout">
         <article className="reading-surface">
           <div className="reading-intro">
-            <Pill tone="violet">A 30-minute starting point</Pill>
-            <p>Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view.</p>
+            <Pill tone="violet">{isPhilosophicalLesson ? "A 45-minute guided comparison" : "A 30-minute starting point"}</Pill>
+            <p>{isPhilosophicalLesson ? "Read for the question each thinker is answering, the evidence each view favors, and the limits that keep comparison honest." : "Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view."}</p>
           </div>
-          <LessonMarkdownContent />
+          <LessonMarkdownContent markdown={markdown} />
           <label className="note-field">
             <span>Your private note</span>
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Capture the thought you want to find later…" rows={5} />
@@ -2408,7 +2430,7 @@ function SeedLessonPage() {
               <h3>{completed ? "Nice. The next useful step is practice." : "Finish with a quick practice set."}</h3>
               <p>Retrieval is where this idea starts becoming yours.</p>
             </div>
-            <Link className="button button-dark" to={`/practice?scope=lesson&course=understanding-self&unit=${seedUnitId}&lesson=${seedLessonId}`}>
+            <Link className="button button-dark" to={`/practice?scope=lesson&course=understanding-self&unit=${seedUnitId}&lesson=${lesson.id}`}>
               Practice this lesson <ArrowRight size={17} />
             </Link>
           </div>
@@ -2417,11 +2439,7 @@ function SeedLessonPage() {
           <Card>
             <p className="eyebrow">In this lesson</p>
             <ul className="lesson-outline">
-              <li className="active"><span /> Why this matters</li>
-              <li><span /> Vocabulary and key ideas</li>
-              <li><span /> Worked examples</li>
-              <li><span /> Apply it</li>
-              <li><span /> Recall and transfer</li>
+              {lessonOutline.map((item, index) => <li className={index === 0 ? "active" : ""} key={item}><span /> {item}</li>)}
             </ul>
           </Card>
           <Card className="source-card">

@@ -70,16 +70,19 @@ ledger = XpLedger()
 seen_mutations: set[str] = set()
 
 SEED_LESSON_ID = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self"
-SEED_QUESTIONS_PATH = (
+PHILOSOPHICAL_LESSON_ID = "understanding-self.the-self-from-various-perspectives.philosophical-perspectives-of-the-self"
+SEED_QUESTIONS_ROOT = (
     Path(__file__).resolve().parents[1]
     / "data"
     / "seed"
     / "questions"
     / "understanding-self"
     / "the-self-from-various-perspectives"
-    / "introduction-to-the-self"
-    / "questions.json"
 )
+SEED_QUESTION_PATHS = {
+    SEED_LESSON_ID: SEED_QUESTIONS_ROOT / "introduction-to-the-self" / "questions.json",
+    PHILOSOPHICAL_LESSON_ID: SEED_QUESTIONS_ROOT / "philosophical-perspectives-of-the-self" / "questions.json",
+}
 
 
 def request_id() -> str:
@@ -101,9 +104,12 @@ def safe_learner_question(item: dict) -> dict:
     return safe
 
 
-def load_seed_question_bank() -> dict:
+def load_seed_question_bank(lesson_id: str = SEED_LESSON_ID) -> dict:
+    question_path = SEED_QUESTION_PATHS.get(lesson_id)
+    if question_path is None:
+        return {}
     try:
-        with SEED_QUESTIONS_PATH.open("r", encoding="utf-8") as source:
+        with question_path.open("r", encoding="utf-8") as source:
             value = json.load(source)
     except (OSError, json.JSONDecodeError):
         return {}
@@ -179,9 +185,9 @@ async def seed_question_selection(
     scope: AssessmentScope = Query(default=AssessmentScope.lesson_practice),
     seed: int = Query(default=2026, ge=0),
 ):
-    if lesson_id != SEED_LESSON_ID:
+    if lesson_id not in SEED_QUESTION_PATHS:
         return JSONResponse(status_code=404, content={"code": "CONTENT_NOT_FOUND", "message": "Lesson content was not found."})
-    bank = load_seed_question_bank()
+    bank = load_seed_question_bank(lesson_id)
     questions = bank.get("questions") if isinstance(bank, dict) else None
     outcome_ids = sorted({item.get("outcome_id") for item in questions if isinstance(item, dict) and item.get("outcome_id")}) if isinstance(questions, list) else []
     try:
