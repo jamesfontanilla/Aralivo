@@ -310,26 +310,50 @@ function renderInlineLessonText(text: string, keyPrefix: string) {
 function LessonMarkdownContent() {
   const body = lessonMarkdown.split("\n---\n").slice(1).join("\n---\n");
   const lines = body.split("\n");
+  const blocks: Array<
+    | { type: "line"; line: string; index: number }
+    | { type: "unordered" | "ordered"; items: Array<{ text: string; index: number }> }
+  > = [];
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed === "---") return;
+    const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+    const numbered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+    if (bullet || numbered) {
+      const type = bullet ? "unordered" : "ordered";
+      const previous = blocks[blocks.length - 1];
+      if (previous?.type === type) {
+        previous.items.push({ text: (bullet ?? numbered)![1], index });
+      } else {
+        blocks.push({ type, items: [{ text: (bullet ?? numbered)![1], index }] });
+      }
+      return;
+    }
+    blocks.push({ type: "line", line: trimmed, index });
+  });
+
   return (
     <div className="lesson-markdown">
-      {lines.map((line, index) => {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed === "---") return null;
-        const heading = trimmed.match(/^(#{1,4})\s+(.+)$/);
+      {blocks.map((block) => {
+        if ("items" in block) {
+          const List = block.type === "unordered" ? "ul" : "ol";
+          return (
+            <List key={`${block.type}-${block.items[0].index}`}>
+              {block.items.map((item) => (
+                <li key={`${block.type}-item-${item.index}`}>{renderInlineLessonText(item.text, `${block.type}-item-${item.index}`)}</li>
+              ))}
+            </List>
+          );
+        }
+
+        const heading = block.line.match(/^(#{1,4})\s+(.+)$/);
         if (heading) {
           if (heading[1].length === 1) return null;
           const Heading = `h${Math.min(4, heading[1].length)}` as "h2" | "h3" | "h4";
-          return <Heading key={`heading-${index}`}>{renderInlineLessonText(heading[2], `heading-${index}`)}</Heading>;
+          return <Heading key={`heading-${block.index}`}>{renderInlineLessonText(heading[2], `heading-${block.index}`)}</Heading>;
         }
-        const bullet = trimmed.match(/^[-*]\s+(.+)$/);
-        if (bullet) {
-          return <li key={`bullet-${index}`}>{renderInlineLessonText(bullet[1], `bullet-${index}`)}</li>;
-        }
-        const numbered = trimmed.match(/^\d+[.)]\s+(.+)$/);
-        if (numbered) {
-          return <li key={`number-${index}`}>{renderInlineLessonText(numbered[1], `number-${index}`)}</li>;
-        }
-        return <p key={`paragraph-${index}`}>{renderInlineLessonText(trimmed, `paragraph-${index}`)}</p>;
+        return <p key={`paragraph-${block.index}`}>{renderInlineLessonText(block.line, `paragraph-${block.index}`)}</p>;
       })}
     </div>
   );
