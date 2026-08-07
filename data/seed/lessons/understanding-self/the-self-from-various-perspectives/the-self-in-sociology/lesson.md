@@ -499,11 +499,11 @@ The lesson now moves from explanation to practice.
 
 ## Further study
 
-- **5.1 Theories of Self Development** — Introduction to Sociology, 3rd Canadian Edition, Open Textbook BC. Useful for a fuller treatment of self, Cooley, and Mead. Open textbook access; see the source page for license details: https://opentextbc.ca/introductiontosociology3rdedition/chapter/5-1-theories-of-self-development/
-- **5.3 Agents of Socialization** — OpenStax. Useful for family, peer, school, workplace, and institutional socialization. CC BY-NC-SA 4.0: https://openstax.org/books/introduction-sociology-3e/pages/5-3-agents-of-socialization
-- **George Herbert Mead** — Stanford Encyclopedia of Philosophy. Useful for generalized other, role-taking, and the functional “I/me” distinction. Reference access: https://plato.stanford.edu/archives/fall2018/entries/mead/
-- **Chapter 22: Social Interaction** — Introduction to Sociology, 2nd Canadian Edition, Open Textbook BC. Useful for Goffman's dramaturgical analysis and front-stage/back-stage distinctions. Open textbook access: https://opentextbc.ca/introductiontosociology2ndedition/chapter/chapter-22-social-interaction/
-- **Lesson 2 The Sociological Perspective of the Self** — Polytechnic University of the Philippines lecture note hosted by Studocu. Useful as a lesson-proper example of the course topic; access and reuse rights remain subject to the host and uploader: https://www.studocu.com/ph/document/polytechnic-university-of-the-philippines/understanding-the-self/lesson-2-the-sociological-perspective-of-the-self/19895456
+- **5.1 Theories of Self Development** — Introduction to Sociology, 3rd Canadian Edition, Open Textbook BC. Useful for a fuller treatment of self, Cooley, and Mead. Open textbook access; see the source page for license details: [Read the chapter](https://opentextbc.ca/introductiontosociology3rdedition/chapter/5-1-theories-of-self-development/)
+- **5.3 Agents of Socialization** — OpenStax. Useful for family, peer, school, workplace, and institutional socialization. CC BY-NC-SA 4.0: [Read the chapter](https://openstax.org/books/introduction-sociology-3e/pages/5-3-agents-of-socialization)
+- **George Herbert Mead** — Stanford Encyclopedia of Philosophy. Useful for generalized other, role-taking, and the functional “I/me” distinction. Reference access: [Read the entry](https://plato.stanford.edu/archives/fall2018/entries/mead/)
+- **Chapter 22: Social Interaction** — Introduction to Sociology, 2nd Canadian Edition, Open Textbook BC. Useful for Goffman's dramaturgical analysis and front-stage/back-stage distinctions. Open textbook access: [Read the chapter](https://opentextbc.ca/introductiontosociology2ndedition/chapter/chapter-22-social-interaction/)
+- **Lesson 2 The Sociological Perspective of the Self** — Polytechnic University of the Philippines lecture note hosted by Studocu. Useful as a lesson-proper example of the course topic; access and reuse rights remain subject to the host and uploader: [Open the lesson proper](https://www.studocu.com/ph/document/polytechnic-university-of-the-philippines/understanding-the-self/lesson-2-the-sociological-perspective-of-the-self/19895456)
 
 ## Sources and provenance
 
