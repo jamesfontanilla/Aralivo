@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import os
 from uuid import uuid4
 
 from fastapi import FastAPI, Header, Request
@@ -61,7 +62,8 @@ class ReceiptRequest(BaseModel):
 
 
 app = FastAPI(title="Aralivo API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"], allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "Idempotency-Key", "X-Request-Id"])
+cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173,https://aralivo.vercel.app").split(",") if origin.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type", "X-CSRF-Token", "Idempotency-Key", "X-Request-Id"])
 ledger = XpLedger()
 seen_mutations: set[str] = set()
 
@@ -91,7 +93,40 @@ async def health() -> HealthResponse:
 
 @app.get("/api/v1/config")
 async def public_config() -> dict:
-    return {"ai_enabled": False, "stellar_enabled": False, "calendar_enabled": False, "email_delivery": "supabase-auth"}
+    return {
+        "ai_enabled": False,
+        "stellar_enabled": False,
+        "calendar_enabled": False,
+        "email_delivery": "supabase-auth",
+        "auth_enabled": bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_ANON_KEY")),
+    }
+
+
+async def require_user(authorization: str | None) -> dict | None:
+    """Validate the access token against Supabase Auth without trusting its claims locally."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        return None
+    supabase_url = os.getenv("SUPABASE_URL")
+    anon_key = os.getenv("SUPABASE_ANON_KEY")
+    if not supabase_url or not anon_key:
+        return None
+    import httpx
+
+    token = authorization.split(" ", 1)[1].strip()
+    if not token:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(
+                f"{supabase_url.rstrip('/')}/auth/v1/user",
+                headers={"apikey": anon_key, "Authorization": f"Bearer {token}"},
+            )
+        if response.status_code != 200:
+            return None
+        user = response.json()
+        return user if isinstance(user, dict) and user.get("id") else None
+    except (httpx.HTTPError, ValueError):
+        return None
 
 
 @app.post("/api/v1/assessments/select")
@@ -107,7 +142,7 @@ async def assessment_selection(payload: QuizSelectionRequest, request: Request):
 
 @app.post("/api/v1/assessments/submit")
 async def assessment_submit(payload: QuizSubmissionRequest, request: Request, authorization: str | None = Header(default=None)):
-    if not authorization:
+    if not await require_user(authorization):
         return error_response(request.headers.get("X-Request-Id", request_id()), "UNAUTHORIZED", "Sign in to submit practice.")
     if payload.idempotency_key in seen_mutations:
         return {"status": "already_processed", "idempotency_key": payload.idempotency_key}
@@ -117,7 +152,7 @@ async def assessment_submit(payload: QuizSubmissionRequest, request: Request, au
 
 @app.post("/api/v1/focus/complete")
 async def complete_focus(payload: FocusCompletionRequest, request: Request, authorization: str | None = Header(default=None)):
-    if not authorization:
+    if not await require_user(authorization):
         return error_response(request.headers.get("X-Request-Id", request_id()), "UNAUTHORIZED", "Sign in to sync focus sessions.")
     if payload.idempotency_key in seen_mutations:
         return {"status": "already_processed", "session_id": payload.session_id, "xp_awarded": 0}
@@ -128,7 +163,7 @@ async def complete_focus(payload: FocusCompletionRequest, request: Request, auth
 
 @app.post("/api/v1/receipts/preview")
 async def receipt_preview(payload: ReceiptRequest, request: Request, authorization: str | None = Header(default=None)):
-    if not authorization:
+    if not await require_user(authorization):
         return error_response(request.headers.get("X-Request-Id", request_id()), "UNAUTHORIZED", "Sign in to preview a receipt.")
     receipt = build_receipt_payload(payload.model_dump())
     return {"payload": receipt, "payload_hash": hash_receipt_payload(receipt), "public_fields": list(receipt)}

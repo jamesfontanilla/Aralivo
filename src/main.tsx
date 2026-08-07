@@ -55,6 +55,8 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import type { User } from "@supabase/supabase-js";
+import { appUrl, supabase } from "./lib/supabase";
 import "./styles.css";
 
 const subjects = [
@@ -258,15 +260,16 @@ function getProfile() {
   return readStored<DemoProfile>("aralivo-profile", defaultProfile);
 }
 
-function apiHeaders(): Record<string, string> {
-  return getStoredFlag("aralivo-auth")
-    ? { Authorization: "Bearer demo-session", "Content-Type": "application/json" }
-    : { "Content-Type": "application/json" };
+async function apiHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const session = supabase ? (await supabase.auth.getSession()).data.session : null;
+  if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+  return headers;
 }
 
 async function apiRequest<T>(path: string, init: RequestInit): Promise<T | null> {
   try {
-    const requestHeaders = new Headers(apiHeaders());
+    const requestHeaders = new Headers(await apiHeaders());
     if (init.headers)
       new Headers(init.headers).forEach((value, key) => requestHeaders.set(key, value));
     const response = await fetch(path, {
@@ -280,6 +283,25 @@ async function apiRequest<T>(path: string, init: RequestInit): Promise<T | null>
   }
 }
 
+async function syncProfile(user: User, updates: Partial<DemoProfile> = {}) {
+  if (!supabase) return getProfile();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id,email,display_name,term,primary_subject,verified")
+    .eq("id", user.id)
+    .maybeSingle();
+  const profile: DemoProfile = {
+    email: data?.email ?? user.email ?? defaultProfile.email,
+    displayName: data?.display_name ?? user.user_metadata?.display_name ?? defaultProfile.displayName,
+    term: data?.term ?? defaultProfile.term,
+    subject: data?.primary_subject ?? defaultProfile.subject,
+    verified: Boolean(data?.verified ?? user.email_confirmed_at),
+    ...updates,
+  };
+  writeStored("aralivo-profile", profile);
+  return profile;
+}
+
 function getElapsedSeconds(session: FocusSession, now = Date.now()) {
   return Math.min(
     session.durationSeconds,
@@ -291,27 +313,52 @@ function getElapsedSeconds(session: FocusSession, now = Date.now()) {
 }
 
 function App() {
-  const [authenticated, setAuthenticated] = useState(() => getStoredFlag("aralivo-auth"));
-  const signIn = () => {
-    setStoredFlag("aralivo-auth", true);
-    setAuthenticated(true);
-  };
-  const signOut = () => {
+  const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    if (!supabase) {
+      setAuthState("unauthenticated");
+      return;
+    }
+    let mounted = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setUser(data.session?.user ?? null);
+      setAuthState(data.session ? "authenticated" : "unauthenticated");
+      if (data.session) void syncProfile(data.session.user);
+    });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      setUser(session?.user ?? null);
+      setAuthState(session ? "authenticated" : "unauthenticated");
+      if (session) window.setTimeout(() => void syncProfile(session.user), 0);
+    });
+    return () => {
+      mounted = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signOut = async () => {
+    await supabase?.auth.signOut();
     window.localStorage.removeItem("aralivo-auth");
-    setAuthenticated(false);
+    window.localStorage.removeItem("aralivo-pending-signup");
+    window.localStorage.removeItem("aralivo-pending-auth");
+    setUser(null);
+    setAuthState("unauthenticated");
   };
 
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/sign-in" element={<AuthPage mode="sign-in" onSuccess={signIn} />} />
-      <Route path="/sign-up" element={<AuthPage mode="sign-up" onSuccess={signIn} />} />
+      <Route path="/sign-in" element={<AuthPage mode="sign-in" />} />
+      <Route path="/sign-up" element={<AuthPage mode="sign-up" />} />
       <Route path="/check-email" element={<CheckEmailPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route
         path="/forgot-password"
-        element={<AuthPage mode="forgot" onSuccess={() => undefined} />}
+        element={<AuthPage mode="forgot" />}
       />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/auth/callback" element={<CallbackPage />} />
@@ -320,7 +367,13 @@ function App() {
       <Route path="/app/:section" element={<AppNamespaceRedirect />} />
       <Route
         element={
-          authenticated ? <AppShell onSignOut={signOut} /> : <Navigate to="/sign-in" replace />
+          authState === "loading" ? (
+            <AuthLoadingPage />
+          ) : authState === "authenticated" ? (
+            <AppShell onSignOut={signOut} />
+          ) : (
+            <Navigate to="/sign-in" replace />
+          )
         }
       >
         <Route path="/today" element={<TodayPage />} />
@@ -341,6 +394,18 @@ function App() {
   );
 }
 
+function AuthLoadingPage() {
+  return (
+    <div className="auth-page">
+      <div className="auth-card centered-card">
+        <div className="loading-orb"><span /></div>
+        <h1>Checking your session…</h1>
+        <p>We’re securely opening your private workspace.</p>
+      </div>
+    </div>
+  );
+}
+
 function AppNamespaceRedirect() {
   const { section } = useParams();
   const destination: Record<string, string> = {
@@ -358,7 +423,7 @@ function AppNamespaceRedirect() {
 }
 
 function NotFoundPage() {
-  const destination = getStoredFlag("aralivo-auth") ? "/today" : "/";
+  const destination = "/";
   return (
     <div className="auth-page">
       <div className="auth-card centered-card">
@@ -516,20 +581,21 @@ function Landing() {
 }
 
 type AuthMode = "sign-in" | "sign-up" | "forgot";
-function AuthPage({ mode, onSuccess }: { mode: AuthMode; onSuccess: () => void }) {
+function AuthPage({ mode }: { mode: AuthMode }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const title =
     mode === "sign-in"
       ? "Welcome back."
       : mode === "sign-up"
         ? "Make room to learn."
         : "Reset your password.";
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!email.includes("@") || !email.includes(".")) {
       setError("Enter a valid email address.");
@@ -547,23 +613,49 @@ function AuthPage({ mode, onSuccess }: { mode: AuthMode; onSuccess: () => void }
       setError("Passwords do not match. Re-enter the same password in both fields.");
       return;
     }
+    if (!supabase) {
+      setError("Authentication is not configured yet. Add the Supabase URL and public key to this deployment.");
+      return;
+    }
     setError("");
-    if (mode === "forgot") {
-      navigate("/check-email");
-    } else if (mode === "sign-up") {
-      writeStored("aralivo-pending-signup", {
-        email,
-        displayName: name.trim(),
-        term: defaultProfile.term,
-        subject: defaultProfile.subject,
-        verified: false,
-      } satisfies DemoProfile);
-      navigate("/check-email");
-    } else {
-      const existing = getProfile();
-      writeStored("aralivo-profile", { ...existing, email, verified: true });
-      onSuccess();
-      navigate("/today");
+    setSubmitting(true);
+    try {
+      if (mode === "forgot") {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${appUrl()}/reset-password`,
+        });
+        if (resetError) throw resetError;
+        writeStored("aralivo-pending-auth", { action: "reset", email });
+        navigate("/check-email");
+      } else if (mode === "sign-up") {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { display_name: name.trim() },
+            emailRedirectTo: `${appUrl()}/auth/callback`,
+          },
+        });
+        if (signUpError) throw signUpError;
+        writeStored("aralivo-pending-signup", {
+          email,
+          displayName: name.trim(),
+          term: defaultProfile.term,
+          subject: defaultProfile.subject,
+          verified: Boolean(data.session),
+        } satisfies DemoProfile);
+        if (data.session) navigate("/onboarding");
+        else navigate("/check-email");
+      } else {
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
+        if (data.user) await syncProfile(data.user);
+        navigate("/today");
+      }
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "We couldn’t complete that request.");
+    } finally {
+      setSubmitting(false);
     }
   };
   return (
@@ -588,13 +680,22 @@ function AuthPage({ mode, onSuccess }: { mode: AuthMode; onSuccess: () => void }
           <button
             className="button button-google"
             type="button"
-            onClick={() => {
-              writeStored("aralivo-profile", { ...getProfile(), verified: true });
-              onSuccess();
-              navigate("/today");
+            disabled={submitting || !supabase}
+            onClick={async () => {
+              if (!supabase) return;
+              setError("");
+              setSubmitting(true);
+              const { error: oauthError } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: { redirectTo: `${appUrl()}/auth/callback` },
+              });
+              if (oauthError) {
+                setError(oauthError.message);
+                setSubmitting(false);
+              }
             }}
           >
-            <span className="google-g">G</span> Continue with Google
+            <span className="google-g">G</span> {submitting ? "Opening Google…" : "Continue with Google"}
           </button>
         )}
         {mode !== "forgot" && (
@@ -662,7 +763,7 @@ function AuthPage({ mode, onSuccess }: { mode: AuthMode; onSuccess: () => void }
               />
             </>
           )}
-          <button className="button button-primary button-full" type="submit">
+          <button className="button button-primary button-full" type="submit" disabled={submitting}>
             {mode === "sign-in"
               ? "Sign in"
               : mode === "sign-up"
@@ -675,6 +776,11 @@ function AuthPage({ mode, onSuccess }: { mode: AuthMode; onSuccess: () => void }
           <Link className="center-link" to="/forgot-password">
             Forgot your password?
           </Link>
+        )}
+        {!supabase && (
+          <p className="field-error" role="alert">
+            This deployment is waiting for its Supabase public configuration.
+          </p>
         )}
         {mode === "sign-in" ? (
           <p className="auth-switch">
@@ -763,11 +869,21 @@ function Field({
 function CheckEmailPage() {
   const navigate = useNavigate();
   const [resent, setResent] = useState(false);
+  const [error, setError] = useState("");
+  const pendingSignup = readStored<DemoProfile | null>("aralivo-pending-signup", null);
+  const pendingAuth = readStored<{ action: "reset"; email: string } | null>("aralivo-pending-auth", null);
   useEffect(() => {
-    if (!readStored<DemoProfile | null>("aralivo-pending-signup", null)) {
+    if (!pendingSignup && !pendingAuth) {
       navigate("/sign-up", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, pendingAuth, pendingSignup]);
+  const resend = async () => {
+    if (!supabase || !pendingSignup?.email) return;
+    setError("");
+    const { error: resendError } = await supabase.auth.resend({ type: "signup", email: pendingSignup.email });
+    if (resendError) setError(resendError.message);
+    else setResent(true);
+  };
   return (
     <div className="auth-page">
       <Link className="brand auth-brand" to="/">
@@ -781,23 +897,25 @@ function CheckEmailPage() {
         <p className="eyebrow">One small step</p>
         <h1>Check your email.</h1>
         <p>
-          We sent a secure link to your inbox. It expires soon, and you can request a new one if it
-          gets lost.
+          {pendingAuth
+            ? "We sent a secure password reset link to your inbox."
+            : "We sent a secure verification link to your inbox. It expires soon, and you can request a new one if it gets lost."}
         </p>
-        <button
-          className="button button-primary button-full"
-          onClick={() => navigate("/verify-email")}
-          disabled={!readStored<DemoProfile | null>("aralivo-pending-signup", null)}
-        >
-          Continue verification <ArrowRight size={17} />
-        </button>
-        <button className="button button-quiet button-full" onClick={() => setResent(true)}>
-          Resend verification
-        </button>
+        {pendingSignup && (
+          <button className="button button-quiet button-full" onClick={() => void resend()} disabled={resent}>
+            {resent ? "Verification email sent" : "Resend verification"}
+          </button>
+        )}
         {resent && (
           <p className="saved-message" role="status">
-            A fresh demo link is ready to open.
+            A fresh verification link is on its way.
           </p>
+        )}
+        {error && <p className="field-error" role="alert">{error}</p>}
+        {pendingAuth && (
+          <Link className="button button-primary button-full" to="/sign-in">
+            Back to sign in <ArrowRight size={17} />
+          </Link>
         )}
         <Link className="center-link" to="/sign-up">
           Use a different email
@@ -810,8 +928,8 @@ function VerifyEmailPage() {
   const navigate = useNavigate();
   const pending = readStored<DemoProfile | null>("aralivo-pending-signup", null);
   useEffect(() => {
-    if (!pending) navigate("/sign-up", { replace: true });
-  }, [navigate, pending]);
+    navigate("/auth/callback", { replace: true });
+  }, [navigate]);
   return (
     <div className="auth-page">
       <Link className="brand auth-brand" to="/">
@@ -904,12 +1022,24 @@ function OnboardingPage() {
       ),
     },
   ];
-  const finish = () => {
+  const finish = async () => {
     const pending = readStored<DemoProfile>("aralivo-pending-signup", defaultProfile);
-    writeStored("aralivo-profile", { ...pending, term, subject, verified: true });
+    const session = supabase ? (await supabase.auth.getSession()).data.session : null;
+    if (session?.user && supabase) {
+      const profile = await syncProfile(session.user, { term, subject, verified: true });
+      await supabase.from("profiles").upsert({
+        id: session.user.id,
+        email: session.user.email,
+        display_name: profile.displayName,
+        term,
+        primary_subject: subject,
+        verified: true,
+      });
+    } else {
+      writeStored("aralivo-profile", { ...pending, term, subject, verified: true });
+    }
     window.localStorage.removeItem("aralivo-pending-signup");
-    window.localStorage.setItem("aralivo-auth", "true");
-    window.location.href = "/today";
+    navigate("/today", { replace: true });
   };
   return (
     <div className="auth-page onboarding-page">
@@ -949,6 +1079,10 @@ function OnboardingPage() {
 }
 function ResetPasswordPage() {
   const [saved, setSaved] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
   return (
     <div className="auth-page">
       <Link className="brand auth-brand" to="/">
@@ -969,25 +1103,34 @@ function ResetPasswordPage() {
           />
         ) : (
           <form
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
-              setSaved(true);
+              if (password.length < 8) return setError("Use at least 8 characters for your password.");
+              if (password !== confirmation) return setError("Passwords do not match.");
+              if (!supabase) return setError("Authentication is not configured yet.");
+              const { error: updateError } = await supabase.auth.updateUser({ password });
+              if (updateError) setError(updateError.message);
+              else {
+                setSaved(true);
+                window.setTimeout(() => navigate("/today", { replace: true }), 1000);
+              }
             }}
           >
             <Field
               label="New password"
               type="password"
-              value=""
-              onChange={() => undefined}
+              value={password}
+              onChange={setPassword}
               placeholder="8 characters minimum"
             />
             <Field
               label="Confirm password"
               type="password"
-              value=""
-              onChange={() => undefined}
+              value={confirmation}
+              onChange={setConfirmation}
               placeholder="Repeat your password"
             />
+            {error && <p className="field-error" role="alert">{error}</p>}
             <button className="button button-primary button-full" type="submit">
               Update password <ArrowRight size={17} />
             </button>
@@ -998,6 +1141,38 @@ function ResetPasswordPage() {
   );
 }
 function CallbackPage() {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    const complete = async () => {
+      if (!supabase) {
+        setError("Authentication is not configured yet.");
+        return;
+      }
+      const code = new URLSearchParams(window.location.search).get("code");
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
+          if (active) setError(exchangeError.message);
+          return;
+        }
+      }
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (!active) return;
+      if (sessionError || !data.session) {
+        setError(sessionError?.message ?? "No active session was returned.");
+        return;
+      }
+      await syncProfile(data.session.user);
+      const isNewSignup = Boolean(readStored<DemoProfile | null>("aralivo-pending-signup", null));
+      navigate(isNewSignup ? "/onboarding" : "/today", { replace: true });
+    };
+    void complete();
+    return () => {
+      active = false;
+    };
+  }, [navigate]);
   return (
     <div className="auth-page">
       <div className="auth-card centered-card">
@@ -1006,6 +1181,7 @@ function CallbackPage() {
         </div>
         <h1>Finishing sign in…</h1>
         <p>We’re bringing you back to your private workspace.</p>
+        {error && <p className="field-error" role="alert">{error}</p>}
         <Link className="text-link" to="/today">
           Continue to Today <ArrowRight size={16} />
         </Link>
@@ -3724,8 +3900,18 @@ function SettingsPage({ onSignOut }: { onSignOut: () => void }) {
     setSection(next);
     window.history.replaceState(null, "", `/settings#${next}`);
   };
-  const saveProfile = () => {
+  const saveProfile = async () => {
     writeStored("aralivo-profile", profile);
+    if (supabase) {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        await supabase.from("profiles").update({
+          display_name: profile.displayName,
+          term: profile.term,
+          primary_subject: profile.subject,
+        }).eq("id", data.user.id);
+      }
+    }
     setSaved("Saving…");
     window.setTimeout(() => setSaved("Saved"), 450);
     setStatus("Profile changes saved on this device.");
@@ -3872,7 +4058,7 @@ function SettingsPage({ onSignOut }: { onSignOut: () => void }) {
                 <SettingRow
                   icon={<KeyRound size={18} />}
                   title="Password"
-                  description="Local demo password"
+                  description="Password managed by Supabase Auth"
                   action={
                     <Link className="button button-quiet" to="/forgot-password">
                       Change
@@ -3892,7 +4078,7 @@ function SettingsPage({ onSignOut }: { onSignOut: () => void }) {
                 <ShieldCheck size={20} />
                 <div>
                   <strong>Your account is in good shape.</strong>
-                  <p>Local demo session active. Connect Supabase Auth before production.</p>
+                  <p>Your Supabase Auth session is active in this browser.</p>
                 </div>
               </div>
               <SettingRow
