@@ -2475,6 +2475,7 @@ type PracticeItem = {
   options?: string[];
   items?: string[];
   pairs?: string[];
+  matchingOptions?: string[];
   outcome_id?: string;
 };
 
@@ -2501,6 +2502,7 @@ function normalizeLearnerQuestions(value: unknown): PracticeItem[] {
     options: item.options?.map(textValue),
     items: item.items?.map(textValue),
     pairs: item.pairs ? item.pairs.left.flatMap((left, index) => [left.text, item.pairs?.right[index]?.text ?? ""]) : undefined,
+    matchingOptions: item.pairs?.right.map((right) => right.text),
     outcome_id: item.outcome_id,
   }));
 }
@@ -2841,6 +2843,7 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
   const [items, setItems] = useState<PracticeItem[]>(practiceItems);
   const [current, setCurrent] = useState(0);
   const [answer, setAnswer] = useState<string | string[]>("");
+  const [matchingAnswers, setMatchingAnswers] = useState<Record<string, string>>({});
   const [ordering, setOrdering] = useState<string[]>(practiceItems[6].items ?? []);
   const [complete, setComplete] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -2872,10 +2875,14 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
   }, [selectedLesson.id]);
   useEffect(() => {
     if (items[current]?.type === "ordering") setOrdering(items[current].items ?? []);
+    setMatchingAnswers({});
   }, [current, items]);
+  const matchingLefts = item.type === "matching" ? (item.pairs ?? []).filter((_, index) => index % 2 === 0) : [];
   const hasAnswer =
     item.type === "ordering"
       ? ordering.length > 0
+      : item.type === "matching"
+        ? matchingLefts.length > 0 && matchingLefts.every((left) => Boolean(matchingAnswers[left]))
       : Array.isArray(answer)
         ? answer.length > 0
         : answer.trim().length > 0;
@@ -2900,7 +2907,7 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
         body: JSON.stringify({
           attempt_id: attemptId,
           question_id: item.id,
-          answer,
+          answer: item.type === "matching" ? matchingAnswers : answer,
           idempotency_key: idempotencyKey,
         }),
       },
@@ -2916,6 +2923,7 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
       const next = current + 1;
       setCurrent(next);
       setAnswer("");
+      setMatchingAnswers({});
       setOrdering(items[next].items ?? []);
     }
   };
@@ -3078,20 +3086,18 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
           </label>
         ) : item.type === "matching" ? (
           <div className="matching-list">
-            {(item.pairs ?? [])
-              .filter((_, index) => index % 2 === 0)
-              .map((left, index) => (
-                <label className="field" key={left}>
-                  <span>{left}</span>
-                  <select
-                    value={typeof answer === "string" ? "" : ""}
-                    onChange={(event) => setAnswer(`${left} → ${event.target.value}`)}
-                  >
-                    <option value="">Choose a match…</option>
-                    <option>{item.pairs?.[index * 2 + 1]}</option>
-                  </select>
-                </label>
-              ))}
+            {matchingLefts.map((left) => (
+              <label className="field" key={left}>
+                <span>{left}</span>
+                <select
+                  value={matchingAnswers[left] ?? ""}
+                  onChange={(event) => setMatchingAnswers((currentAnswers) => ({ ...currentAnswers, [left]: event.target.value }))}
+                >
+                  <option value="">Choose a match…</option>
+                  {(item.matchingOptions ?? []).map((option) => <option key={option} value={option}>{option}</option>)}
+                </select>
+              </label>
+            ))}
           </div>
         ) : (
           <div className="ordering-list" aria-label="Reorder the steps">
