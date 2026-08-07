@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import json
 import os
+from pathlib import Path
 from uuid import uuid4
 
-from fastapi import FastAPI, Header, Request
+from fastapi import FastAPI, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -67,6 +69,18 @@ app.add_middleware(CORSMiddleware, allow_origins=cors_origins, allow_credentials
 ledger = XpLedger()
 seen_mutations: set[str] = set()
 
+SEED_LESSON_ID = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self"
+SEED_QUESTIONS_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "data"
+    / "seed"
+    / "questions"
+    / "understanding-self"
+    / "the-self-from-various-perspectives"
+    / "introduction-to-the-self"
+    / "questions.json"
+)
+
 
 def request_id() -> str:
     return f"req_{uuid4().hex[:16]}"
@@ -75,6 +89,25 @@ def request_id() -> str:
 def error_response(request_id_value: str, code: str, message: str, retriable: bool = False) -> JSONResponse:
     payload = ErrorEnvelope(code=code, message=message, request_id=request_id_value, retriable=retriable)
     return JSONResponse(status_code=400 if code != "UNAUTHORIZED" else 401, content=payload.model_dump(mode="json"))
+
+
+def safe_learner_question(item: dict) -> dict:
+    """Keep authoring answers and feedback on the server side of the boundary."""
+    safe = {
+        key: item[key]
+        for key in ("id", "type", "prompt", "options", "pairs", "items", "scenario", "skill", "outcome_id", "cognitive_level", "difficulty", "tags", "estimated_seconds")
+        if key in item
+    }
+    return safe
+
+
+def load_seed_question_bank() -> dict:
+    try:
+        with SEED_QUESTIONS_PATH.open("r", encoding="utf-8") as source:
+            value = json.load(source)
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
 
 
 @app.middleware("http")
@@ -136,8 +169,32 @@ async def assessment_selection(payload: QuizSelectionRequest, request: Request):
         selected = select_questions(payload.question_bank, payload.scope, payload.outcome_ids, payload.recently_seen_ids, payload.seed)
     except AssessmentSelectionError as exc:
         return error_response(rid, "QUESTION_POOL_INSUFFICIENT", str(exc))
-    safe_questions = [{key: item[key] for key in ("id", "type", "prompt", "options", "skill", "outcome_id", "difficulty") if key in item} for item in selected]
+    safe_questions = [safe_learner_question(item) for item in selected]
     return {"attempt_id": f"attempt_{uuid4().hex}", "scope": payload.scope.value, "seed": payload.seed, "questions": safe_questions}
+
+
+@app.get("/api/v1/content/questions/{lesson_id}")
+async def seed_question_selection(
+    lesson_id: str,
+    scope: AssessmentScope = Query(default=AssessmentScope.lesson_practice),
+    seed: int = Query(default=2026, ge=0),
+):
+    if lesson_id != SEED_LESSON_ID:
+        return JSONResponse(status_code=404, content={"code": "CONTENT_NOT_FOUND", "message": "Lesson content was not found."})
+    bank = load_seed_question_bank()
+    questions = bank.get("questions") if isinstance(bank, dict) else None
+    outcome_ids = sorted({item.get("outcome_id") for item in questions if isinstance(item, dict) and item.get("outcome_id")}) if isinstance(questions, list) else []
+    try:
+        selected = select_questions(bank, scope, outcome_ids, [], seed)
+    except AssessmentSelectionError as exc:
+        return JSONResponse(status_code=422, content={"code": "QUESTION_POOL_INSUFFICIENT", "message": str(exc)})
+    return {
+        "attempt_id": f"attempt_{uuid4().hex}",
+        "lesson_id": lesson_id,
+        "scope": scope.value,
+        "seed": seed,
+        "questions": [safe_learner_question(item) for item in selected],
+    }
 
 
 @app.post("/api/v1/assessments/submit")

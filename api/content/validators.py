@@ -12,7 +12,22 @@ class ValidationIssue(BaseModel):
     line: int | None = None
 
 
-REQUIRED_HEADINGS = ["## Learning outcomes", "## Read", "## Worked example", "## Recall prompts", "## Practice handoff"]
+MODERN_REQUIRED_HEADINGS = [
+    "## Why this matters",
+    "## Learning outcomes",
+    "## Before you begin",
+    "## Vocabulary",
+    "## Key ideas",
+    "## Worked example",
+    "## Common confusions",
+    "## Apply it",
+    "## Recall",
+    "## Reflection or transfer",
+    "## Further study",
+    "## Sources and provenance",
+    "## Rights and originality",
+]
+LEGACY_REQUIRED_HEADINGS = ["## Learning outcomes", "## Read", "## Worked example", "## Recall prompts", "## Practice handoff"]
 
 
 def validate_lesson_markdown(markdown: str) -> list[ValidationIssue]:
@@ -27,21 +42,25 @@ def validate_lesson_markdown(markdown: str) -> list[ValidationIssue]:
             issues.append(ValidationIssue(code="FRONT_MATTER_UNCLOSED", message="YAML front matter must close with a second --- line.", path="front_matter"))
         else:
             front = markdown[3:closing]
-            required = ["lesson_id", "slug", "course_slug", "unit_slug", "status", "language", "level", "duration_minutes", "outcome_ids", "source_basis", "quoted_text", "rights_review", "license_status"]
+            required = ["lesson_id", "slug", "course_slug", "unit_slug", "status", "language", "level", "duration_minutes", "outcome_ids", "source_basis", "rights_review", "license_status"]
             for field in required:
                 if not re.search(rf"^{re.escape(field)}\s*:", front, re.MULTILINE):
                     issues.append(ValidationIssue(code="FIELD_REQUIRED", message=f"Required front matter field: {field}.", path=f"front_matter.{field}"))
-            if re.search(r"quoted_text\s*:\s*(?!false\b)", front, re.IGNORECASE):
+            if not re.search(r"quoted_text\s*:\s*false\b", front, re.IGNORECASE):
                 issues.append(ValidationIssue(code="QUOTED_TEXT_NOT_ALLOWED", message="Learner lessons must declare quoted_text: false.", path="front_matter.quoted_text"))
-            if re.search(r"ched|approved curriculum|official grade", markdown, re.IGNORECASE):
+            claim_text = re.sub(r"https?://\S+", "", markdown)
+            if re.search(r"\bCHED\b|approved curriculum|official grade", claim_text, re.IGNORECASE):
                 issues.append(ValidationIssue(code="UNSUPPORTED_CLAIM", message="Remove unsupported CHED, approval, or grading claims.", path="markdown"))
             if re.search(r"<!--.*answer|answer key", markdown, re.IGNORECASE | re.DOTALL):
                 issues.append(ValidationIssue(code="ANSWER_KEY_HIDDEN", message="Do not hide answer keys in learner-facing Markdown.", path="markdown"))
             if re.search(r"http://", front):
                 issues.append(ValidationIssue(code="HTTPS_REQUIRED", message="Source URLs must use HTTPS.", path="front_matter.source_basis"))
-    for heading in REQUIRED_HEADINGS:
-        if heading not in markdown:
-            issues.append(ValidationIssue(code="HEADING_REQUIRED", message=f"Required section heading: {heading}.", path="headings"))
+    modern_complete = all(heading in markdown for heading in MODERN_REQUIRED_HEADINGS)
+    legacy_complete = all(heading in markdown for heading in LEGACY_REQUIRED_HEADINGS)
+    if not modern_complete and not legacy_complete:
+        for heading in MODERN_REQUIRED_HEADINGS:
+            if heading not in markdown:
+                issues.append(ValidationIssue(code="HEADING_REQUIRED", message=f"Required section heading: {heading}.", path="headings"))
     if len(markdown.splitlines()) < 24:
         issues.append(ValidationIssue(code="CONTENT_TOO_SHORT", message="Lesson content should include enough explanation, an example, recall, and a handoff.", path="markdown"))
     return issues
@@ -65,7 +84,7 @@ def validate_question_bank(question_bank: dict) -> list[ValidationIssue]:
     prompts = [item.get("prompt", "").strip().casefold() for item in questions if isinstance(item, dict)]
     if len(prompts) != len(set(prompts)):
         issues.append(ValidationIssue(code="DUPLICATE_PROMPT", message="Question prompts must be unique.", path="questions"))
-    valid_types = {"multiple_choice", "multi_select", "true_false", "fill_blank", "short_answer", "matching", "ordering", "scenario"}
+    valid_types = {"multiple_choice", "multiple_select", "multi_select", "true_false", "fill_blank", "short_answer", "matching", "ordering", "scenario"}
     types = set()
     for index, item in enumerate(questions):
         path = f"questions[{index}]"
@@ -73,9 +92,11 @@ def validate_question_bank(question_bank: dict) -> list[ValidationIssue]:
             issues.append(ValidationIssue(code="QUESTION_OBJECT_REQUIRED", message="Each question must be an object.", path=path))
             continue
         types.add(item.get("type"))
-        for key in ("id", "type", "prompt", "outcome_id", "skill", "cognitive_level", "difficulty", "estimated_time_seconds", "explanation", "misconception", "source_basis", "originality_note"):
+        for key in ("id", "type", "prompt", "outcome_id", "skill", "cognitive_level", "difficulty", "explanation", "misconception", "source_basis", "originality_note"):
             if key not in item:
                 issues.append(ValidationIssue(code="FIELD_REQUIRED", message=f"Required question field: {key}.", path=f"{path}.{key}"))
+        if "estimated_seconds" not in item and "estimated_time_seconds" not in item:
+            issues.append(ValidationIssue(code="FIELD_REQUIRED", message="Required question field: estimated_seconds.", path=f"{path}.estimated_seconds"))
         if item.get("type") not in valid_types:
             issues.append(ValidationIssue(code="QUESTION_TYPE", message=f"Unsupported question type: {item.get('type')}.", path=f"{path}.type"))
         if "answer" not in item:

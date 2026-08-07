@@ -59,7 +59,11 @@ import {
 import type { User } from "@supabase/supabase-js";
 import { appUrl, supabase } from "./lib/supabase";
 import { getAssessmentPolicy, type PracticeScope } from "./lib/contentParser";
+import lessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/introduction-to-the-self/lesson.md?raw";
 import "./styles.css";
+
+const seedLessonId = "understanding-self.the-self-from-various-perspectives.introduction-to-the-self";
+const seedUnitId = "the-self-from-various-perspectives";
 
 const subjects = [
   {
@@ -69,8 +73,8 @@ const subjects = [
     color: "violet",
     icon: "⌁",
     progress: 0,
-    next: "Content not generated yet",
-    lessons: 0,
+    next: "Start with Introduction to the Self",
+    lessons: 1,
   },
   {
     id: "philippine-history",
@@ -176,9 +180,31 @@ type CourseLesson = {
   outcome: string;
 };
 
-const units: CourseUnit[] = [];
+const units: CourseUnit[] = [
+  {
+    id: seedUnitId,
+    subjectId: "understanding-self",
+    title: "The Self from Various Perspectives",
+    label: "Unit 1",
+    progress: 0,
+    lessons: 1,
+    duration: "30 min",
+    state: "current",
+  },
+];
 
-const lessons: CourseLesson[] = [];
+const lessons: CourseLesson[] = [
+  {
+    id: seedLessonId,
+    unitId: seedUnitId,
+    title: "Introduction to the Self",
+    eyebrow: "Lesson 1",
+    duration: "30 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Compare perspectives on the self and build a careful, revisable account.",
+  },
+];
 
 type PracticeSelection = {
   scope: PracticeScope;
@@ -260,6 +286,53 @@ function readStored<T>(key: string, fallback: T): T {
 
 function writeStored<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+function renderInlineLessonText(text: string, keyPrefix: string) {
+  const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g).filter(Boolean);
+  return tokens.map((token, index) => {
+    const key = `${keyPrefix}-${index}`;
+    const link = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (link) {
+      return (
+        <a key={key} href={link[2]} target="_blank" rel="noreferrer">
+          {link[1]}
+        </a>
+      );
+    }
+    if (token.startsWith("**") && token.endsWith("**")) {
+      return <strong key={key}>{token.slice(2, -2)}</strong>;
+    }
+    return <React.Fragment key={key}>{token}</React.Fragment>;
+  });
+}
+
+function LessonMarkdownContent() {
+  const body = lessonMarkdown.split("\n---\n").slice(1).join("\n---\n");
+  const lines = body.split("\n");
+  return (
+    <div className="lesson-markdown">
+      {lines.map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed === "---") return null;
+        const heading = trimmed.match(/^(#{1,4})\s+(.+)$/);
+        if (heading) {
+          if (heading[1].length === 1) return null;
+          const Heading = `h${Math.min(4, heading[1].length)}` as "h2" | "h3" | "h4";
+          return <Heading key={`heading-${index}`}>{renderInlineLessonText(heading[2], `heading-${index}`)}</Heading>;
+        }
+        const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+        if (bullet) {
+          return <li key={`bullet-${index}`}>{renderInlineLessonText(bullet[1], `bullet-${index}`)}</li>;
+        }
+        const numbered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+        if (numbered) {
+          return <li key={`number-${index}`}>{renderInlineLessonText(numbered[1], `number-${index}`)}</li>;
+        }
+        return <p key={`paragraph-${index}`}>{renderInlineLessonText(trimmed, `paragraph-${index}`)}</p>;
+      })}
+    </div>
+  );
 }
 
 type DemoProfile = {
@@ -1597,22 +1670,22 @@ function TodayPage() {
           <div className="pebble-top">
             <div>
               <p className="eyebrow">Your next useful action</p>
-              <Pill tone="violet">Content pending</Pill>
+              <Pill tone="mint">Ready to learn</Pill>
             </div>
             <button className="icon-button" aria-label="More next action options">
               <MoreHorizontal size={20} />
             </button>
           </div>
           <h2>
-            Your first course is ready
+            Start with a useful question
           </h2>
-          <p>Understanding the Self is selected for your account. Lessons will appear here after they are generated and published.</p>
+          <p>Begin with an introduction to the self, then test your thinking with a 15-item practice set.</p>
           <div className="pebble-meta">
             <span>
               <BookOpen size={15} /> Understanding the Self
             </span>
             <span>
-              <Target size={15} /> No lesson published yet
+              <Target size={15} /> 1 lesson · 30 min
             </span>
           </div>
           <div className="pebble-actions">
@@ -1664,8 +1737,8 @@ function TodayPage() {
           <Card className="recent-card">
             <div className="empty-inline">
               <BookOpen size={22} />
-              <strong>Your first lesson will show here.</strong>
-              <p>There is no demo progress in this account. Start once your generated content is published.</p>
+              <strong>Introduction to the Self is ready.</strong>
+              <p>Open the course to compare perspectives and build a careful, revisable account.</p>
             </div>
           </Card>
         </div>
@@ -1701,7 +1774,7 @@ function TodayPage() {
             <div className="empty-inline compact-empty">
               <CalendarDays size={22} />
               <strong>Nothing due yet.</strong>
-              <p>Generated lessons and reviews will appear here.</p>
+              <p>Your new lesson and practice set will show up here as you work through them.</p>
             </div>
             <Link className="text-link" to="/planner">
               Open planner <ArrowRight size={15} />
@@ -1874,7 +1947,7 @@ function SubjectPage() {
           <SectionTitle
             eyebrow="The learning path"
             title="Units"
-            action={<Pill tone="neutral">Content pending</Pill>}
+            action={<Pill tone="mint">1 lesson ready</Pill>}
           />
           {subjectUnits.length > 0 ? (
             <div className="unit-list">
@@ -1894,23 +1967,23 @@ function SubjectPage() {
           <Card className="next-side-card">
             <p className="eyebrow">Course status</p>
             <h2>{subject.next}</h2>
-            <p className="muted-copy">This course is in the catalog, but no lesson files are loaded yet.</p>
+            <p className="muted-copy">Start with one focused lesson, then use practice to turn the ideas into your own reasoning.</p>
             <Link className="button button-dark button-full" to="/subjects">
               Back to courses <ArrowRight size={16} />
             </Link>
           </Card>
           <Card className="outcome-card">
-            <p className="eyebrow">What happens next</p>
-            <h3>Content pipeline</h3>
+            <p className="eyebrow">Your starting path</p>
+            <h3>Learn, then practice</h3>
             <ul className="check-list">
               <li>
-                <CheckCircle2 size={16} /> author the lesson Markdown
+                <CheckCircle2 size={16} /> read the introduction
               </li>
               <li>
-                <CheckCircle2 size={16} /> validate the question bank
+                <CheckCircle2 size={16} /> try the 15-item practice set
               </li>
               <li>
-                <CheckCircle2 size={16} /> publish the learner path
+                <CheckCircle2 size={16} /> save a private reflection
               </li>
             </ul>
           </Card>
@@ -1964,16 +2037,8 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
 }
 
 function UnitPage() {
-  return (
-    <ContentUnavailablePage
-      eyebrow="Unit content"
-      title="Units will appear after authoring"
-      description="This course has no published unit files yet."
-    />
-  );
-  /* istanbul ignore next -- retained route contract for generated unit content. */
   const { unitId } = useParams();
-  const unit = units.find((item) => item.id === unitId) ?? units[1];
+  const unit = units.find((item) => item.id === unitId) ?? units[0];
   const unitLessons = lessons.filter((lesson) => lesson.unitId === unit.id);
   const course = subjects.find((item) => item.id === unit.subjectId) ?? subjects[0];
   const unitSelection = normalizePracticeSelection("unit", course.id, unit.id);
@@ -1989,7 +2054,7 @@ function UnitPage() {
       <PageHeader
         eyebrow={`${course.name} · ${unit.label}`}
         title={unit.title}
-        description="A short path from a useful question to evidence you can trust."
+        description="A short path from a useful question to a more careful account of yourself."
         action={
           <Link className="button button-primary" to={practiceSelectionPath(unitSelection)}>
             <Target size={16} /> Review unit · 30 items
@@ -2000,15 +2065,9 @@ function UnitPage() {
         <Card>
           <p className="eyebrow">Learning outcomes</p>
           <ul className="check-list">
-            <li>
-              <CheckCircle2 size={16} /> explain why samples can mislead
-            </li>
-            <li>
-              <CheckCircle2 size={16} /> compare common selection strategies
-            </li>
-            <li>
-              <CheckCircle2 size={16} /> choose a useful next question
-            </li>
+              <li><CheckCircle2 size={16} /> identify questions about the self</li>
+              <li><CheckCircle2 size={16} /> compare four useful perspectives</li>
+              <li><CheckCircle2 size={16} /> state a careful next question</li>
           </ul>
         </Card>
         <Card>
@@ -2078,13 +2137,7 @@ function LessonRow({ lesson, index }: { lesson: (typeof lessons)[number]; index:
 }
 
 function LessonPage() {
-  return (
-    <ContentUnavailablePage
-      eyebrow="Lesson content"
-      title="Lessons will appear after authoring"
-      description="No learner-facing lesson has been generated or published for this course yet."
-    />
-  );
+  return <SeedLessonPage />;
   /* istanbul ignore next -- retained route contract for generated lesson content. */
   const { lessonId } = useParams();
   const lesson = lessons.find((item) => item.id === lessonId) ?? lessons[0];
@@ -2262,9 +2315,110 @@ function LessonPage() {
   );
 }
 
+function SeedLessonPage() {
+  const [note, setNote] = useState(() => window.localStorage.getItem(`aralivo-notes-${getProfile().email}`) ?? "");
+  const [saved, setSaved] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [reported, setReported] = useState(false);
+  const noteKey = `aralivo-notes-${getProfile().email}`;
+  const saveNote = () => {
+    window.localStorage.setItem(noteKey, note);
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 1800);
+  };
+  const clearNote = () => {
+    window.localStorage.removeItem(noteKey);
+    setNote("");
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 1800);
+  };
+  return (
+    <div className="lesson-page page-stack">
+      <nav className="content-breadcrumb" aria-label="Lesson breadcrumb">
+        <Link to="/subjects">Courses</Link>
+        <ChevronRight size={14} aria-hidden="true" />
+        <Link to="/subjects/understanding-self">Understanding the Self</Link>
+        <ChevronRight size={14} aria-hidden="true" />
+        <Link to={`/units/${seedUnitId}`}>The Self from Various Perspectives</Link>
+        <ChevronRight size={14} aria-hidden="true" />
+        <span aria-current="page">Introduction to the Self</span>
+      </nav>
+      <div className="lesson-header">
+        <div>
+          <p className="eyebrow">Lesson 1 · 30 min</p>
+          <h1>Introduction to the Self</h1>
+          <p>Compare perspectives on the self and build a careful, revisable account.</p>
+        </div>
+        <div className="lesson-header-actions">
+          <button className="button button-primary" onClick={() => setCompleted(true)}>
+            {completed ? <CheckCircle2 size={17} /> : <Play size={17} />}
+            {completed ? "Completed" : "Start lesson"}
+          </button>
+          <button className="button button-quiet" onClick={saveNote}>
+            <KeyRound size={16} /> Save note
+          </button>
+          {note && <button className="button button-quiet" onClick={clearNote}>Clear note</button>}
+        </div>
+      </div>
+      <div className="lesson-progress-row">
+        <span>Lesson progress</span>
+        <ProgressBar value={completed ? 100 : 12} />
+        <strong>{completed ? 100 : 12}%</strong>
+        {saved && <span className="saved-message" role="status"><Check size={14} /> Saved</span>}
+      </div>
+      <div className="lesson-layout">
+        <article className="reading-surface">
+          <div className="reading-intro">
+            <Pill tone="violet">A 30-minute starting point</Pill>
+            <p>Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view.</p>
+          </div>
+          <LessonMarkdownContent />
+          <label className="note-field">
+            <span>Your private note</span>
+            <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Capture the thought you want to find later…" rows={5} />
+            <small>Only you can see this note. It will not be included in receipts or emails.</small>
+          </label>
+          <div className="lesson-complete">
+            <div>
+              <Pill tone={completed ? "mint" : "violet"}>{completed ? "Lesson complete" : "Ready when you are"}</Pill>
+              <h3>{completed ? "Nice. The next useful step is practice." : "Finish with a quick practice set."}</h3>
+              <p>Retrieval is where this idea starts becoming yours.</p>
+            </div>
+            <Link className="button button-dark" to={`/practice?scope=lesson&course=understanding-self&unit=${seedUnitId}&lesson=${seedLessonId}`}>
+              Practice this lesson <ArrowRight size={17} />
+            </Link>
+          </div>
+        </article>
+        <aside className="lesson-aside">
+          <Card>
+            <p className="eyebrow">In this lesson</p>
+            <ul className="lesson-outline">
+              <li className="active"><span /> Why this matters</li>
+              <li><span /> Vocabulary and key ideas</li>
+              <li><span /> Worked examples</li>
+              <li><span /> Apply it</li>
+              <li><span /> Recall and transfer</li>
+            </ul>
+          </Card>
+          <Card className="source-card">
+            <p className="eyebrow">Source context</p>
+            <h3>Original learning aid</h3>
+            <p>Written for Aralivo with source alignment and lesson-proper references recorded for review.</p>
+            <span className="source-meta"><ShieldCheck size={14} /> Provenance recorded</span>
+            <button className="text-link" onClick={() => setReported(true)}>
+              {reported ? "Report received" : "Report content"} <ArrowRight size={14} />
+            </button>
+          </Card>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
 type PracticeType =
   | "multiple_choice"
   | "multi_select"
+  | "multiple_select"
   | "true_false"
   | "fill_blank"
   | "short_answer"
@@ -2279,7 +2433,35 @@ type PracticeItem = {
   options?: string[];
   items?: string[];
   pairs?: string[];
+  outcome_id?: string;
 };
+
+type LearnerQuestionPayload = {
+  id: string;
+  type: PracticeType;
+  prompt: string;
+  options?: Array<string | { id: string; text: string }>;
+  items?: Array<string | { id: string; text: string }>;
+  pairs?: { left: Array<{ id: string; text: string }>; right: Array<{ id: string; text: string }> };
+  scenario?: string;
+  outcome_id?: string;
+};
+
+function normalizeLearnerQuestions(value: unknown): PracticeItem[] {
+  if (!value || typeof value !== "object" || !("questions" in value)) return [];
+  const questions = (value as { questions?: unknown }).questions;
+  if (!Array.isArray(questions)) return [];
+  const textValue = (item: string | { id: string; text: string }) => typeof item === "string" ? item : item.text;
+  return questions.filter((item): item is LearnerQuestionPayload => Boolean(item && typeof item === "object" && "id" in item && "type" in item && "prompt" in item)).map((item) => ({
+    id: item.id,
+    type: item.type === "multiple_select" ? "multi_select" : item.type,
+    prompt: item.scenario ? `${item.scenario}\n\n${item.prompt}` : item.prompt,
+    options: item.options?.map(textValue),
+    items: item.items?.map(textValue),
+    pairs: item.pairs ? item.pairs.left.flatMap((left, index) => [left.text, item.pairs?.right[index]?.text ?? ""]) : undefined,
+    outcome_id: item.outcome_id,
+  }));
+}
 
 const practiceItems: PracticeItem[] = [
   {
@@ -2580,7 +2762,7 @@ function PracticeScopeChooser({
           <p className="eyebrow">Ready to practice</p>
           <h2>{targetTitle}</h2>
           <p>{targetDescription}</p>
-          <p className="muted-copy">Validated content will supply the {policy.selectionCount}-item selection in production. This UI opens the same questionnaire preview while lesson banks are being authored.</p>
+          <p className="muted-copy">The validated bank selects {policy.selectionCount} items for this scope, with answers kept on the server until you submit.</p>
         </div>
         <button className="button button-dark" type="button" onClick={onStart}>
           Start questionnaire <ArrowRight size={17} />
@@ -2591,14 +2773,6 @@ function PracticeScopeChooser({
 }
 
 function PracticePage() {
-  return (
-    <ContentUnavailablePage
-      eyebrow="Practice"
-      title="Practice will appear after question authoring"
-      description="No questionnaire is loaded yet. Generate and validate the question bank before learners practice."
-    />
-  );
-  /* istanbul ignore next -- retained route contract for generated question banks. */
   const location = useLocation();
   const navigate = useNavigate();
   const [selection, setSelection] = useState(() => practiceSelectionFromSearch(location.search));
@@ -2622,6 +2796,7 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
   const selectedCourse = subjects.find((subject) => subject.id === selection.courseId) ?? subjects[0];
   const selectedUnit = units.find((unit) => unit.id === selection.unitId) ?? units[0];
   const selectedLesson = lessons.find((lesson) => lesson.id === selection.lessonId) ?? lessons[0];
+  const [items, setItems] = useState<PracticeItem[]>(practiceItems);
   const [current, setCurrent] = useState(0);
   const [answer, setAnswer] = useState<string | string[]>("");
   const [ordering, setOrdering] = useState<string[]>(practiceItems[6].items ?? []);
@@ -2629,28 +2804,33 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState("");
   const [attemptId, setAttemptId] = useState("demo-practice");
-  const item = practiceItems[current];
+  const [contentLoading, setContentLoading] = useState(true);
+  const item = items[current] ?? items[0];
   useEffect(() => {
-    void apiRequest<{ attempt_id: string }>("/api/v1/assessments/select", {
-      method: "POST",
-      body: JSON.stringify({
-        scope: "lesson_practice",
-        question_bank: {
-          questions: practiceItems.map((question) => ({
-            ...question,
-            outcome_id: "selection-bias",
-            skill: "selection-bias",
-            difficulty: "intro",
-          })),
-        },
-        outcome_ids: ["selection-bias"],
-        recently_seen_ids: [],
-        seed: 2026,
-      }),
-    }).then((result) => {
-      if (result?.attempt_id) setAttemptId(result.attempt_id);
+    let active = true;
+    setContentLoading(true);
+    void apiRequest<{ attempt_id: string; questions: LearnerQuestionPayload[] }>(
+      `/api/v1/content/questions/${encodeURIComponent(selectedLesson.id)}?scope=lesson_practice&seed=2026`,
+      { method: "GET" },
+    ).then((result) => {
+      if (!active) return;
+      const nextItems = normalizeLearnerQuestions(result);
+      if (nextItems.length) {
+        setItems(nextItems);
+        setCurrent(0);
+        setAnswer("");
+        setOrdering(nextItems.find((question) => question.type === "ordering")?.items ?? []);
+        setAttemptId(result?.attempt_id ?? "demo-practice");
+      }
+      setContentLoading(false);
     });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [selectedLesson.id]);
+  useEffect(() => {
+    if (items[current]?.type === "ordering") setOrdering(items[current].items ?? []);
+  }, [current, items]);
   const hasAnswer =
     item.type === "ordering"
       ? ordering.length > 0
@@ -2689,12 +2869,12 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
         : "Response saved locally. Moving to the next question.",
     );
     setSubmitting(false);
-    if (current === practiceItems.length - 1) setComplete(true);
+    if (current === items.length - 1) setComplete(true);
     else {
       const next = current + 1;
       setCurrent(next);
       setAnswer("");
-      setOrdering(practiceItems[next].items ?? []);
+      setOrdering(items[next].items ?? []);
     }
   };
   const moveOrdering = (index: number, direction: -1 | 1) => {
@@ -2720,10 +2900,10 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
           </div>
           <Pill tone="mint">Practice complete</Pill>
           <h2>You added 35 XP.</h2>
-          <p>All 15 responses were recorded for this practice set.</p>
+          <p>All {items.length} responses were recorded for this practice set.</p>
           <div className="summary-stats">
             <div>
-              <strong>15 / 15</strong>
+              <strong>{items.length} / {items.length}</strong>
               <span>items answered</span>
             </div>
             <div>
@@ -2764,20 +2944,21 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
       </div>
       <div className="practice-progress">
         <span>
-          Question {current + 1} of {practiceItems.length}
+          Question {current + 1} of {items.length}
         </span>
-        <ProgressBar value={((current + 1) / practiceItems.length) * 100} tone="primary" />
-        <strong>{Math.round(((current + 1) / practiceItems.length) * 100)}%</strong>
+        <ProgressBar value={((current + 1) / items.length) * 100} tone="primary" />
+        <strong>{Math.round(((current + 1) / items.length) * 100)}%</strong>
       </div>
       {status && (
         <div className="practice-status" role="status" aria-live="polite">
           {status}
         </div>
       )}
+      {contentLoading && <div className="practice-status" role="status">Loading the validated question set…</div>}
       <div className="question-shell">
         <div className="question-meta">
           <Pill tone="violet">{item.type.replace("_", " ")}</Pill>
-          <span>Outcome · recognize selection bias</span>
+          <span>Outcome · {item.outcome_id ?? "apply the lesson idea"}</span>
         </div>
         <h2>{item.prompt}</h2>
         {item.type === "multiple_choice" || item.type === "scenario" ? (
@@ -2907,7 +3088,7 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
           >
             {submitting
               ? "Saving…"
-              : current === practiceItems.length - 1
+              : current === items.length - 1
                 ? "Finish practice"
                 : "Check answer"}{" "}
             <ArrowRight size={17} />
