@@ -1,0 +1,32 @@
+{
+  "capturedAt": "2026-08-07",
+  "runtime": {
+    "devLanding": "PASS",
+    "previewLanding": "PASS",
+    "previewConsoleErrors": 0,
+    "devFreshTabErrors": 0
+  },
+  "coreJourney": {
+    "plannerAddTaskDialog": true,
+    "focusTimerStart": "15:00",
+    "focusTimerAfterApprox2_2Seconds": "14:58",
+    "focusReloadRestoredActive": true,
+    "practiceFirstQuestionRadioCount": 4,
+    "practiceAfterSubmit": "Question 2 of 15",
+    "practiceStatus": "Response synced. Moving to the next question.",
+    "settingsSaveReload": "PASS",
+    "settingsDialogInitialFocus": "confirmation input",
+    "unknownRouteRecovery": "PASS",
+    "legacyAppPlannerRoute": "/planner"
+  },
+  "responsive": [
+    { "width": 320, "horizontalOverflow": false },
+    { "width": 360, "horizontalOverflow": false },
+    { "width": 390, "horizontalOverflow": false },
+    { "width": 768, "horizontalOverflow": false }
+  ],
+  "notes": [
+    "Browser viewport values use scrollWidth > innerWidth for horizontal overflow.",
+    "External Supabase, email, Google Calendar, AI, and Stellar credentials remain deployment configuration rather than local test fixtures."
+  ]
+}

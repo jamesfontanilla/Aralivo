@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-08-07T14:17:48.874Z",
+  "plannerBefore": {
+    "buttons": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Add task",
+      "Export .ics"
+    ],
+    "h1": "Planner"
+  },
+  "addTaskButton": 1,
+  "plannerAfter": {
+    "body": false,
+    "buttons": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Add task",
+      "Export .ics"
+    ],
+    "inputs": [],
+    "url": "/planner"
+  },
+  "icsButton": "Export .ics"
+}

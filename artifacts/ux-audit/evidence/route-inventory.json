@@ -1,0 +1,165 @@
+{
+  "capturedAt": "2026-08-07T14:17:11.377Z",
+  "routes": [
+    {
+      "actual": "/",
+      "body": "Skip to main content\na\naralivo\nHow it works\nPrivacy first\nSign in\nCreate account\n\nA QUIETER WAY TO K",
+      "h1": "Keep the next useful thing close.",
+      "main": true,
+      "requested": "/",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/sign-in",
+      "body": "a\naralivo\n\nYOUR LEARNING WORKSPACE\n\nWelcome back.\n\nA calm place to pick up the thread.\n\nG\nContinue w",
+      "h1": "Welcome back.",
+      "main": false,
+      "requested": "/sign-in",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/sign-up",
+      "body": "a\naralivo\n\nSTART WITH A PRIVATE SPACE\n\nMake room to learn.\n\nA calm place to pick up the thread.\n\nG\nC",
+      "h1": "Make room to learn.",
+      "main": false,
+      "requested": "/sign-up",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/check-email",
+      "body": "a\naralivo\n\nONE SMALL STEP\n\nCheck your email.\n\nWe sent a secure link to your inbox. It expires soon, ",
+      "h1": "Check your email.",
+      "main": false,
+      "requested": "/check-email",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/verify-email",
+      "body": "a\naralivo\n\nEMAIL VERIFIED\n\nYou’re ready to begin.\n\nYour space is private by default. Let’s choose wh",
+      "h1": "You’re ready to begin.",
+      "main": false,
+      "requested": "/verify-email",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/auth/callback",
+      "body": "Finishing sign in…\n\nWe’re bringing you back to your private workspace.\n\nContinue to Today",
+      "h1": "Finishing sign in…",
+      "main": false,
+      "requested": "/auth/callback",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/",
+      "body": "Skip to main content\na\naralivo\nHow it works\nPrivacy first\nSign in\nCreate account\n\nA QUIETER WAY TO K",
+      "h1": "Keep the next useful thing close.",
+      "main": true,
+      "requested": "/app",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/",
+      "body": "Skip to main content\na\naralivo\nHow it works\nPrivacy first\nSign in\nCreate account\n\nA QUIETER WAY TO K",
+      "h1": "Keep the next useful thing close.",
+      "main": true,
+      "requested": "/app/today",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/",
+      "body": "Skip to main content\na\naralivo\nHow it works\nPrivacy first\nSign in\nCreate account\n\nA QUIETER WAY TO K",
+      "h1": "Keep the next useful thing close.",
+      "main": true,
+      "requested": "/app/planner",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/",
+      "body": "Skip to main content\na\naralivo\nHow it works\nPrivacy first\nSign in\nCreate account\n\nA QUIETER WAY TO K",
+      "h1": "Keep the next useful thing close.",
+      "main": true,
+      "requested": "/app/subjects",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/today",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Good morning, Jamie.",
+      "main": true,
+      "requested": "/today",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/planner",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Planner",
+      "main": true,
+      "requested": "/planner",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/subjects",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Subjects",
+      "main": true,
+      "requested": "/subjects",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/practice",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Sampling & bias",
+      "main": true,
+      "requested": "/practice",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/flashcards",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Flashcards",
+      "main": true,
+      "requested": "/flashcards",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/focus",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Focus",
+      "main": true,
+      "requested": "/focus",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/resources",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Resources",
+      "main": true,
+      "requested": "/resources",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/receipts",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Learning receipts",
+      "main": true,
+      "requested": "/receipts",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/settings",
+      "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\n",
+      "h1": "Settings",
+      "main": true,
+      "requested": "/settings",
+      "title": "Aralivo · Keep learning close"
+    },
+    {
+      "actual": "/",
+      "body": "Skip to main content\na\naralivo\nHow it works\nPrivacy first\nSign in\nCreate account\n\nA QUIETER WAY TO K",
+      "h1": "Keep the next useful thing close.",
+      "main": true,
+      "requested": "/no-such-route",
+      "title": "Aralivo · Keep learning close"
+    }
+  ]
+}

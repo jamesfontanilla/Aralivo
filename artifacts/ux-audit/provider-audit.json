@@ -1,0 +1,106 @@
+{
+  "capturedAt": "2026-08-07T14:18:54.060Z",
+  "flashcardsBefore": {
+    "answerVisible": false,
+    "buttons": [
+      {
+        "disabled": false,
+        "text": "JSJamie SantosSign out"
+      },
+      {
+        "disabled": false,
+        "text": "JS"
+      },
+      {
+        "disabled": false,
+        "text": "New card"
+      },
+      {
+        "disabled": false,
+        "text": "RecallWhy can a sample quietly shape what you find?Press Enter or tap to reveal"
+      },
+      {
+        "disabled": true,
+        "text": "Again1d"
+      },
+      {
+        "disabled": true,
+        "text": "Hard3d"
+      },
+      {
+        "disabled": true,
+        "text": "Good7d"
+      },
+      {
+        "disabled": true,
+        "text": "Easy14d"
+      },
+      {
+        "disabled": false,
+        "text": "Add a personal card"
+      }
+    ]
+  },
+  "flashcardsAfter": {
+    "answerVisible": true,
+    "ratingButtons": [
+      {
+        "disabled": false,
+        "text": "Again1d"
+      },
+      {
+        "disabled": false,
+        "text": "Hard3d"
+      },
+      {
+        "disabled": false,
+        "text": "Good7d"
+      },
+      {
+        "disabled": false,
+        "text": "Easy14d"
+      }
+    ]
+  },
+  "resources": {
+    "body": "nt\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\nReceipts\n4 day rhythm\nSmall steps count.\nSettings\nJS\nJamie Santos\nSign out\nWorkspace\nResources\nSaved just now\nJS\n\nBRING GOOD CONTEXT WITH YOU\n\nResources\n\nLow-volume, attributed discovery from public catalogs and scholarly metadata.\n\nSearch\nOpen Library\nDesigning with the mind in mind\n\nSimple, human-centered notes on how people perceive and use interfaces.\n\nBook metadata · 2014\nView source\nOpenAlex\nLearning through retrieval practice\n\nA scholarly work surfaced with context, not a claim of school approval.\n\nOpen access · 2023\nView source\nAI assistant\nAsk your lesson\n\nExplain a concept or ask for a hint grounded in the lesson you’re reading.\n\nNot configured\nLearn about privacy\nProvider availability is optional\n\nAralivo keeps your core study loop available when an external catalog or AI provider is unavailable.",
+    "buttons": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Search",
+      "Learn about privacy"
+    ],
+    "disabled": true
+  },
+  "receipts": {
+    "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\nReceipts\n4 day rhythm\nSmall steps count.\nSettings\nJS\nJamie Santos\nSign out\nWorkspace\nReceipts\nSaved just now\nJS\n\nPRIVATE PROOF, IF YOU WANT IT\n\nLearning receipts\n\nA verifiable learning record—not a degree, grade, or official credential.\n\nOpted out\n\nPRIVACY-SAFE BY DESIGN\n\nKeep a milestone without sharing your history.\n\nReceipts use a pseudonymous identifier and content hash. They never include your name, email, notes, detailed answers, or raw study history.\n\nOpt in to receipts\nIssued receipts\nNo receipts yet.\n\nOpt in when a milestone is worth keeping.\n\nWHAT IS PUBLIC?\n\ncontent identifier\nachievement type\ntimestamp and content version\nprivate notes or answers\nname, email, or school records\nRead the privacy note",
+    "buttons": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Opt in to receipts",
+      "Read the privacy note"
+    ]
+  },
+  "integrations": {
+    "body": "Skip to main content\na\naralivo\nWORKSPACE\nToday\nPlanner\nSubjects\nPractice\nFlashcards\nFocus\nResources\nReceipts\n4 day rhythm\nSmall steps count.\nSettings\nJS\nJamie Santos\nSign out\nWorkspace\nSettings\nSaved just now\nJS\n\nYOUR SPACE, YOUR CHOICES\n\nSettings\n\nKeep the important controls findable, and the sensitive ones deliberate.\n\nProfile\nAccount & sign-in\nSecurity\nStudy preferences\nNotifications\nIntegrations\nReceipts\nPrivacy & data\nAppearance\nDanger zone\nSaved\n\nINTEGRATIONS\n\nOptional connections\n\nEvery provider is isolated. Your core study loop works without them.\n\nGoogle Calendar\n\nNot connected\n\nConnect\nOpen Library\n\nAvailable · low-volume\n\nView\nOpenAlex\n\nNot configured\n\nLearn\nAI assistant\n\nDisabled · no key configured\n\nLearn\nStellar receipts\n\nTestnet ready · opt-in\n\nOpen",
+    "buttons": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Profile",
+      "Account & sign-in",
+      "Security",
+      "Study preferences",
+      "Notifications",
+      "Integrations",
+      "Receipts",
+      "Privacy & data",
+      "Appearance",
+      "Danger zone",
+      "Connect",
+      "View",
+      "Learn",
+      "Learn",
+      "Open"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "capturedAt": "2026-08-07T14:17:33.560Z",
+  "selectedFocus": 1,
+  "focusStart": {
+    "active": true,
+    "timer": "15:00",
+    "url": "/focus"
+  },
+  "focusLater": {
+    "active": true,
+    "timer": "14:45"
+  },
+  "focusReload": {
+    "active": false,
+    "setup": false,
+    "timer": ""
+  }
+}

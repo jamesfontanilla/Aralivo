@@ -1,0 +1,45 @@
+{
+  "capturedAt": "2026-08-07T14:18:22.379Z",
+  "signupAuditNow": {
+    "body": "a\naralivo\n\nSTART WITH A PRIVATE SPACE\n\nMake room to learn.\n\nA calm place to pick up the thread.\n\nG\nContinue with Google\nor continue with email\nYour name\nEmail address\nPassword\nCreate my space\n\nAlready have a space? Sign in\n\nBy continuing, you agree to Aralivo’s Terms and Privacy Notice.",
+    "buttons": [
+      {
+        "aria": null,
+        "text": "G Continue with Google",
+        "type": "submit"
+      },
+      {
+        "aria": null,
+        "text": "Create my space",
+        "type": "submit"
+      }
+    ],
+    "inputs": [
+      {
+        "ariaLabel": null,
+        "autocomplete": "name",
+        "describedby": null,
+        "placeholder": "How should Aralivo greet you?",
+        "required": false,
+        "type": "text"
+      },
+      {
+        "ariaLabel": null,
+        "autocomplete": "email",
+        "describedby": null,
+        "placeholder": "you@example.com",
+        "required": false,
+        "type": "email"
+      },
+      {
+        "ariaLabel": null,
+        "autocomplete": "new-password",
+        "describedby": null,
+        "placeholder": "8 characters minimum",
+        "required": false,
+        "type": "password"
+      }
+    ],
+    "url": "/sign-up"
+  }
+}

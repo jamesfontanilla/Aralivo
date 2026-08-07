@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2026-08-07",
+  "route": "/today",
+  "browser": "Codex in-app Chromium",
+  "viewportChecks": [
+    { "requestedWidth": 320, "clientWidth": 305, "scrollWidth": 320, "horizontalOverflow": true, "mobileMenuPresent": true },
+    { "requestedWidth": 360, "clientWidth": 345, "scrollWidth": 345, "horizontalOverflow": false, "mobileMenuPresent": true },
+    { "requestedWidth": 390, "clientWidth": 375, "scrollWidth": 375, "horizontalOverflow": false, "mobileMenuPresent": true },
+    { "requestedWidth": 768, "clientWidth": 753, "scrollWidth": 788, "horizontalOverflow": true, "mobileMenuPresent": true }
+  ]
+}

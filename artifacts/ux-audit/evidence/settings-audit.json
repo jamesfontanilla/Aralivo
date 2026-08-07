@@ -1,0 +1,83 @@
+{
+  "capturedAt": "2026-08-07T14:18:14.130Z",
+  "settingsInitial2": {
+    "inputs": [
+      {
+        "aria": null,
+        "autocomplete": null,
+        "name": null,
+        "placeholder": null,
+        "required": false,
+        "type": "text",
+        "value": "Jamie Santos"
+      },
+      {
+        "aria": null,
+        "autocomplete": null,
+        "name": null,
+        "placeholder": null,
+        "required": false,
+        "type": "select-one",
+        "value": "undergraduate"
+      },
+      {
+        "aria": null,
+        "autocomplete": null,
+        "name": null,
+        "placeholder": null,
+        "required": false,
+        "type": "select-one",
+        "value": "en"
+      },
+      {
+        "aria": null,
+        "autocomplete": null,
+        "name": null,
+        "placeholder": null,
+        "required": false,
+        "type": "select-one",
+        "value": "asia-manila"
+      }
+    ],
+    "switches": [],
+    "tabs": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Profile",
+      "Account & sign-in",
+      "Security",
+      "Study preferences",
+      "Notifications",
+      "Integrations",
+      "Receipts",
+      "Privacy & data",
+      "Appearance",
+      "Danger zone",
+      "Change avatar",
+      "Save changes"
+    ]
+  },
+  "nameInput": 1,
+  "saveButton": 1,
+  "settingsSaved": {
+    "name": "QA New Name",
+    "saved": true,
+    "saving": false
+  },
+  "settingsReloaded": {
+    "h1": "Settings",
+    "name": "Jamie Santos"
+  },
+  "dangerTab": 1,
+  "delButton": 1,
+  "dialogAudit": {
+    "activeTag": "BUTTON",
+    "activeText": "Delete account",
+    "activeWithinDialog": false,
+    "confirmType": "text",
+    "confirmValue": "",
+    "deleteDisabled": true,
+    "dialog": true,
+    "dialogText": "THIS CANNOT BE UNDONE\n\nDelete your Aralivo space?\n\nYour profile, learning history, private notes, and integrations will be permanently removed. Type DELETE to continue.\n\nKeep my space\nDelete permanently"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-08-07T14:19:20.274Z",
+  "lessonAuditNow": {
+    "buttons": [
+      "JSJamie SantosSign out",
+      "JS",
+      "Start lesson",
+      "Save note",
+      "Report content"
+    ],
+    "h1": "Sampling & bias",
+    "hasDeleteNote": false,
+    "hasRetrieval": true,
+    "hasSectionComplete": false,
+    "textareas": [
+      {
+        "placeholder": "Capture the thought you want to find later…",
+        "value": "QA private note"
+      }
+    ],
+    "url": "/lessons/sampling-bias"
+  }
+}

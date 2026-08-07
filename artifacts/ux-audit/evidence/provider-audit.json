@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-08-07",
+  "flashcards": {
+    "beforeRevealAnswerVisible": false,
+    "ratingButtonsDisabled": true,
+    "afterRevealAnswerVisible": true,
+    "ratingButtonsEnabled": true
+  },
+  "resources": {
+    "aiState": "Not configured",
+    "fallbackCopyVisible": true
+  },
+  "receipts": {
+    "state": "Opted out",
+    "optInControlVisible": true,
+    "issuedReceipts": "No receipts yet"
+  },
+  "integrations": {
+    "googleCalendar": "Not connected",
+    "openLibrary": "Available · low-volume",
+    "openAlex": "Not configured",
+    "aiAssistant": "Disabled · no key configured",
+    "stellarReceipts": "Testnet ready · opt-in"
+  }
+}

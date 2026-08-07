@@ -1,0 +1,7 @@
+{
+  "networkError": "Capability is not available: network",
+  "motionError": "Capability is not available: reducedMotion",
+  "mediaState": {
+    "reducedMotion": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "capturedAt": "2026-08-07T14:18:42.239Z",
+  "practiceBeforeNow": {
+    "answerKeyVisible": false,
+    "feedback": false,
+    "h1": "Sampling & bias",
+    "question": "Question 1 of 15",
+    "radios": []
+  },
+  "checkNow": 1,
+  "practiceAfterNow": {
+    "feedbackText": "Good reasoning.",
+    "nextQuestionHasFeedback": true,
+    "question": "Question 2 of 15",
+    "radioCount": 0
+  },
+  "completedItemCount": 15
+}

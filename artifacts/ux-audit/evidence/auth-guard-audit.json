@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-08-07T14:21:04.940Z",
+  "signoutBtn": 1,
+  "guardBefore": {
+    "afterSignOut": "/sign-in",
+    "signInVisible": true
+  },
+  "guardAfter": {
+    "actual": "/sign-in",
+    "h1": "Welcome back.",
+    "requested": "/today",
+    "signInVisible": true
+  }
+}
