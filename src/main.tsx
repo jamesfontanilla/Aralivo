@@ -2,6 +2,7 @@
 import * as React from "react";
 import { StrictMode, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import type { Session } from "@supabase/supabase-js";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -1145,32 +1146,45 @@ function CallbackPage() {
   const [error, setError] = useState("");
   useEffect(() => {
     let active = true;
+    let completed = false;
+    let timeoutId: number | undefined;
+    const finish = async (session: Session) => {
+      if (!active || completed || !session) return;
+      completed = true;
+      if (timeoutId) window.clearTimeout(timeoutId);
+      await syncProfile(session.user);
+      const isNewSignup = Boolean(readStored<DemoProfile | null>("aralivo-pending-signup", null));
+      if (active) navigate(isNewSignup ? "/onboarding" : "/today", { replace: true });
+    };
     const complete = async () => {
       if (!supabase) {
         setError("Authentication is not configured yet.");
         return;
       }
-      const code = new URLSearchParams(window.location.search).get("code");
-      if (code) {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        if (exchangeError) {
-          if (active) setError(exchangeError.message);
-          return;
-        }
-      }
       const { data, error: sessionError } = await supabase.auth.getSession();
-      if (!active) return;
-      if (sessionError || !data.session) {
-        setError(sessionError?.message ?? "No active session was returned.");
+      if (sessionError) {
+        if (active) setError(sessionError.message);
         return;
       }
-      await syncProfile(data.session.user);
-      const isNewSignup = Boolean(readStored<DemoProfile | null>("aralivo-pending-signup", null));
-      navigate(isNewSignup ? "/onboarding" : "/today", { replace: true });
+      if (data.session) {
+        await finish(data.session);
+        return;
+      }
+      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+        if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+          authListener.subscription.unsubscribe();
+          window.setTimeout(() => void finish(session), 0);
+        }
+      });
+      timeoutId = window.setTimeout(() => {
+        authListener.subscription.unsubscribe();
+        if (active && !completed) setError("No active session was returned.");
+      }, 12000);
     };
     void complete();
     return () => {
       active = false;
+      if (timeoutId) window.clearTimeout(timeoutId);
     };
   }, [navigate]);
   return (
