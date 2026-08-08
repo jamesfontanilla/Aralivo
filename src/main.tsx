@@ -456,6 +456,33 @@ function lessonsForUnit(unitId: string) {
   return lessons.filter((lesson) => lesson.unitId === unitId);
 }
 
+function completedLessonsForUnit(unitId: string, completionState: CompletionState) {
+  return lessonsForUnit(unitId).filter((lesson) => Boolean(completionState.lessons[lesson.id])).length;
+}
+
+function unitProgressValue(unit: (typeof units)[number], completionState: CompletionState) {
+  if (unit.state === "complete" || completionState.units[unit.id]) return 100;
+  const unitLessons = lessonsForUnit(unit.id);
+  const totalLessons = Math.max(unit.lessons, unitLessons.length);
+  if (totalLessons === 0) return unit.progress;
+  return Math.round((completedLessonsForUnit(unit.id, completionState) / totalLessons) * 100);
+}
+
+function courseProgressValue(subject: (typeof subjects)[number], completionState: CompletionState) {
+  if (completionState.courses[subject.id]) return 100;
+  const courseUnits = unitsForCourse(subject.id);
+  const totals = courseUnits.reduce(
+    (result, unit) => {
+      const unitLessons = lessonsForUnit(unit.id);
+      result.completed += completedLessonsForUnit(unit.id, completionState);
+      result.total += Math.max(unit.lessons, unitLessons.length);
+      return result;
+    },
+    { completed: 0, total: 0 },
+  );
+  return totals.total > 0 ? Math.round((totals.completed / totals.total) * 100) : subject.progress;
+}
+
 function normalizePracticeSelection(
   scope: PracticeScope,
   courseId = subjects[0].id,
@@ -2341,8 +2368,8 @@ function SubjectPage() {
   const subject = subjects.find((item) => item.id === subjectId) ?? subjects[0];
   const subjectUnits = units.filter((unit) => unit.subjectId === subject.id);
   const completionState = useCompletionState();
-  const courseComplete = subjectUnits.length > 0 && subjectUnits.every((unit) => completionState.units[unit.id]);
-  const courseProgress = courseComplete ? 100 : subject.progress;
+  const courseComplete = Boolean(completionState.courses[subject.id]) || (subjectUnits.length > 0 && subjectUnits.every((unit) => completionState.units[unit.id]));
+  const courseProgress = courseComplete ? 100 : courseProgressValue(subject, completionState);
   return (
     <div className="page-stack">
       <nav className="content-breadcrumb" aria-label="Course breadcrumb">
@@ -2432,6 +2459,7 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
   const completionState = useCompletionState();
   const complete = unit.state === "complete" || Boolean(completionState.units[unit.id]);
   const locked = unit.state === "locked";
+  const progress = unitProgressValue(unit, completionState);
   return (
     <Link
       className={`unit-row ${locked ? "is-locked" : ""}`}
@@ -2466,7 +2494,7 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
         <p>
           {unit.lessons} lessons · {unit.duration}
         </p>
-        <ProgressBar value={complete ? 100 : unit.progress} tone={complete ? "mint" : "primary"} />
+        <ProgressBar value={progress} tone={complete ? "mint" : "primary"} />
       </div>
       <ChevronRight className="unit-arrow" size={20} />
     </Link>
@@ -2486,7 +2514,8 @@ function UnitPage() {
   const hasNoPrerequisitesUnit = isEthicsUnit || isMoralAgentUnit || isCommunicationUnit || isStsUnit;
   const completionState = useCompletionState();
   const unitComplete = unit.state === "complete" || Boolean(completionState.units[unit.id]);
-  const unitProgress = unitComplete ? 100 : unit.progress;
+  const unitProgress = unitProgressValue(unit, completionState);
+  const completedLessonCount = unitLessons.filter((lesson) => lesson.state !== "not-started" || completionState.lessons[lesson.id]).length;
   return (
     <div className="page-stack">
       <nav className="content-breadcrumb" aria-label="Unit breadcrumb">
@@ -2570,7 +2599,7 @@ function UnitPage() {
           </div>
           <ProgressBar value={unitProgress} tone="mint" />
           <p className="muted-copy">
-            {unitLessons.filter((l) => l.state !== "not-started").length} of {unitLessons.length}{" "}
+            {completedLessonCount} of {unitLessons.length}{" "}
             lessons touched
           </p>
         </Card>
@@ -2598,23 +2627,25 @@ function UnitPage() {
   );
 }
 function LessonRow({ lesson, index }: { lesson: (typeof lessons)[number]; index: number }) {
+  const completionState = useCompletionState();
+  const complete = lesson.state === "practiced" || Boolean(completionState.lessons[lesson.id]);
   const stateLabel =
-    lesson.state === "in-progress"
+    complete
+      ? "Complete"
+      : lesson.state === "in-progress"
       ? "In progress"
-      : lesson.state === "practiced"
-        ? "Practiced"
-        : "Not started";
+      : "Not started";
   return (
     <Link className="lesson-row" to={`/lessons/${lesson.id}`}>
       <div className="lesson-index">
-        {lesson.state === "practiced" ? <CheckCircle2 size={19} /> : <span>0{index + 1}</span>}
+        {complete ? <CheckCircle2 size={19} /> : <span>0{index + 1}</span>}
       </div>
       <div className="lesson-row-content">
         <div className="lesson-row-top">
           <span className="eyebrow">{lesson.eyebrow}</span>
           <Pill
             tone={
-              lesson.state === "practiced"
+              complete
                 ? "mint"
                 : lesson.state === "in-progress"
                   ? "violet"
@@ -2629,7 +2660,7 @@ function LessonRow({ lesson, index }: { lesson: (typeof lessons)[number]; index:
         <span className="lesson-duration">
           <Clock3 size={14} /> {lesson.duration}
         </span>
-        {lesson.progress > 0 && <ProgressBar value={lesson.progress} tone="primary" />}
+        {(complete || lesson.progress > 0) && <ProgressBar value={complete ? 100 : lesson.progress} tone={complete ? "mint" : "primary"} />}
       </div>
       <ChevronRight size={20} />
     </Link>
