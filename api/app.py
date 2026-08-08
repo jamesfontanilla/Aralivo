@@ -97,6 +97,7 @@ PHILOSOPHICAL_LESSON_ID = "understanding-self.the-self-from-various-perspectives
 SOCIOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-sociology"
 ANTHROPOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-anthropology"
 PSYCHOLOGY_LESSON_ID = "understanding-self.the-self-from-various-perspectives.the-self-in-psychology"
+WESTERN_EASTERN_LESSON_ID = "understanding-self.the-self-from-various-perspectives.western-and-eastern-views-of-the-self"
 ETHICS_LESSON_ID = "ethics.foundations-of-ethics.moral-and-non-moral-standards"
 MORAL_DILEMMAS_LESSON_ID = "ethics.foundations-of-ethics.moral-dilemmas-and-ethical-problems"
 FREEDOM_LESSON_ID = "ethics.foundations-of-ethics.freedom-responsibility-reason-and-impartiality"
@@ -120,6 +121,7 @@ SEED_QUESTION_PATHS = {
     SOCIOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-sociology" / "questions.json",
     ANTHROPOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-anthropology" / "questions.json",
     PSYCHOLOGY_LESSON_ID: SEED_QUESTIONS_ROOT / "the-self-in-psychology" / "questions.json",
+    WESTERN_EASTERN_LESSON_ID: SEED_QUESTIONS_ROOT / "western-and-eastern-views-of-the-self" / "questions.json",
     ETHICS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "foundations-of-ethics" / "moral-and-non-moral-standards" / "questions.json",
     MORAL_DILEMMAS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "foundations-of-ethics" / "moral-dilemmas-and-ethical-problems" / "questions.json",
     FREEDOM_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "ethics" / "foundations-of-ethics" / "freedom-responsibility-reason-and-impartiality" / "questions.json",

@@ -64,6 +64,7 @@ import philosophicalLessonMarkdown from "../data/seed/lessons/understanding-self
 import sociologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-sociology/lesson.md?raw";
 import anthropologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-anthropology/lesson.md?raw";
 import psychologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-psychology/lesson.md?raw";
+import westernEasternLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/western-and-eastern-views-of-the-self/lesson.md?raw";
 import ethicsLessonMarkdown from "../data/seed/lessons/ethics/foundations-of-ethics/moral-and-non-moral-standards/lesson.md?raw";
 import moralDilemmasLessonMarkdown from "../data/seed/lessons/ethics/foundations-of-ethics/moral-dilemmas-and-ethical-problems/lesson.md?raw";
 import freedomLessonMarkdown from "../data/seed/lessons/ethics/foundations-of-ethics/freedom-responsibility-reason-and-impartiality/lesson.md?raw";
@@ -80,6 +81,7 @@ const philosophicalLessonId = "understanding-self.the-self-from-various-perspect
 const sociologyLessonId = "understanding-self.the-self-from-various-perspectives.the-self-in-sociology";
 const anthropologyLessonId = "understanding-self.the-self-from-various-perspectives.the-self-in-anthropology";
 const psychologyLessonId = "understanding-self.the-self-from-various-perspectives.the-self-in-psychology";
+const westernEasternLessonId = "understanding-self.the-self-from-various-perspectives.western-and-eastern-views-of-the-self";
 const seedUnitId = "the-self-from-various-perspectives";
 const ethicsLessonId = "ethics.foundations-of-ethics.moral-and-non-moral-standards";
 const moralDilemmasLessonId = "ethics.foundations-of-ethics.moral-dilemmas-and-ethical-problems";
@@ -104,7 +106,7 @@ const subjects = [
     icon: "⌁",
     progress: 0,
     next: "Start with Introduction to the Self",
-    lessons: 5,
+    lessons: 6,
   },
   {
     id: "philippine-history",
@@ -217,8 +219,8 @@ const units: CourseUnit[] = [
     title: "The Self from Various Perspectives",
     label: "Unit 1",
     progress: 0,
-    lessons: 5,
-    duration: "210 min",
+    lessons: 6,
+    duration: "255 min",
     state: "current",
   },
   {
@@ -313,6 +315,16 @@ const lessons: CourseLesson[] = [
     state: "not-started",
     progress: 0,
     outcome: "Compare psychological theories of self-concept, motivation, personality, development, and behavior.",
+  },
+  {
+    id: westernEasternLessonId,
+    unitId: seedUnitId,
+    title: "Western and Eastern Views of the Self",
+    eyebrow: "Lesson 6",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Compare independent and interdependent views of the self across selected Western and Eastern traditions.",
   },
   {
     id: ethicsLessonId,
@@ -1931,13 +1943,13 @@ function TodayPage() {
           <h2>
             Start with a useful question
           </h2>
-          <p>Begin with an introduction, compare philosophical perspectives, then study how society, culture, and psychology shape the self.</p>
+          <p>Begin with an introduction, compare philosophical perspectives, then study how society, culture, psychology, and tradition shape the self.</p>
           <div className="pebble-meta">
             <span>
               <BookOpen size={15} /> Understanding the Self
             </span>
             <span>
-              <Target size={15} /> 5 lessons · 210 min
+              <Target size={15} /> 6 lessons · 255 min
             </span>
           </div>
           <div className="pebble-actions">
@@ -2627,6 +2639,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
   const isSociologyLesson = lesson.id === sociologyLessonId;
   const isAnthropologyLesson = lesson.id === anthropologyLessonId;
   const isPsychologyLesson = lesson.id === psychologyLessonId;
+  const isWesternEasternLesson = lesson.id === westernEasternLessonId;
   const isEthicsLesson = lesson.id === ethicsLessonId;
   const isMoralDilemmasLesson = lesson.id === moralDilemmasLessonId;
   const isFreedomLesson = lesson.id === freedomLessonId;
@@ -2654,6 +2667,8 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
     ? anthropologyLessonMarkdown
     : isPsychologyLesson
     ? psychologyLessonMarkdown
+    : isWesternEasternLesson
+    ? westernEasternLessonMarkdown
     : isSociologyLesson
     ? sociologyLessonMarkdown
     : isHistoricalAntecedentsLesson
@@ -2665,7 +2680,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       : lessonMarkdown;
   const lessonUnit = units.find((item) => item.id === lesson.unitId) ?? units[0];
   const lessonCourse = subjects.find((item) => item.id === lessonUnit.subjectId) ?? subjects[0];
-  const startingProgress = isPhilosophicalLesson || isSociologyLesson || isAnthropologyLesson || isPsychologyLesson || isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isStsLesson || isHistoricalAntecedentsLesson ? 0 : 12;
+  const startingProgress = isPhilosophicalLesson || isSociologyLesson || isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isStsLesson || isHistoricalAntecedentsLesson ? 0 : 12;
   const lessonIntro = isVerbalNonVerbalMultimodalLesson
     ? "Read for the ways words, voice, movement, space, timing, visuals, sound, and layout work together to make a message usable."
     : isPrinciplesEthicsLesson
@@ -2684,6 +2699,8 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
     ? "Read for the cultural meanings, identities, and histories that shape the self without turning difference into a stereotype."
     : isPsychologyLesson
     ? "Read for the different ways psychology explains self-concept, motivation, development, and behavior without turning any theory into a complete identity."
+    : isWesternEasternLesson
+    ? "Read for the values each tradition makes visible, the limits of broad cultural labels, and the evidence needed for a fair comparison."
     : isSociologyLesson
     ? "Read for the social settings, expectations, and audiences that shape identity without reducing a person to one label."
     : isHistoricalAntecedentsLesson
@@ -2701,6 +2718,8 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
     ? ["Why this matters", "Vocabulary and key ideas", "Communication models", "Worked examples", "Apply and transfer"]
     : isPsychologyLesson
     ? ["Why this matters", "Vocabulary and key ideas", "Psychological lenses", "Worked examples", "Apply it and transfer"]
+    : isWesternEasternLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Western and Eastern lenses", "Worked examples", "Apply it and transfer"]
     : isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isSociologyLesson || isAnthropologyLesson
     ? ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"]
     : isHistoricalAntecedentsLesson
@@ -2763,7 +2782,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       <div className="lesson-layout">
         <article className="reading-surface">
           <div className="reading-intro">
-            <Pill tone="violet">{isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson ? "A 45-minute guided lesson" : isEthicsLesson ? "A 40-minute guided distinction" : isHistoricalAntecedentsLesson ? "A 45-minute guided history" : isStsLesson ? "A 40-minute STS introduction" : isAnthropologyLesson || isPsychologyLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
+            <Pill tone="violet">{isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson ? "A 45-minute guided lesson" : isEthicsLesson ? "A 40-minute guided distinction" : isHistoricalAntecedentsLesson ? "A 45-minute guided history" : isStsLesson ? "A 40-minute STS introduction" : isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
             <p>{lessonIntro}</p>
           </div>
           <LessonMarkdownContent markdown={markdown} />
