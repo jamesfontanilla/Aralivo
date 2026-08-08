@@ -11,6 +11,7 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Clock3,
   CloudOff,
@@ -58,7 +59,7 @@ import {
 } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { appUrl, supabase } from "./lib/supabase";
-import { getAssessmentPolicy, type PracticeScope } from "./lib/contentParser";
+import { getAssessmentPolicy, parseLessonMarkdown, type PracticeScope } from "./lib/contentParser";
 import lessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/introduction-to-the-self/lesson.md?raw";
 import philosophicalLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/philosophical-perspectives-of-the-self/lesson.md?raw";
 import sociologyLessonMarkdown from "../data/seed/lessons/understanding-self/the-self-from-various-perspectives/the-self-in-sociology/lesson.md?raw";
@@ -709,7 +710,8 @@ function renderInlineLessonText(text: string, keyPrefix: string) {
 }
 
 function LessonMarkdownContent({ markdown }: { markdown: string }) {
-  const body = markdown.split("\n---\n").slice(1).join("\n---\n");
+  const parts = markdown.split("\n---\n");
+  const body = parts.length > 1 ? parts.slice(1).join("\n---\n") : markdown;
   const lines = body.split("\n");
   const blocks: Array<
     | { type: "line"; line: string; index: number }
@@ -758,6 +760,21 @@ function LessonMarkdownContent({ markdown }: { markdown: string }) {
       })}
     </div>
   );
+}
+
+type LessonReaderSection = {
+  heading: string;
+  content: string;
+};
+
+function parseLessonReaderSections(markdown: string): LessonReaderSection[] {
+  const parsed = parseLessonMarkdown(markdown).value;
+  const sections = parsed?.sections
+    .filter((section) => section.level === 2)
+    .map((section) => ({ heading: section.heading, content: section.content }));
+  return sections && sections.length > 0
+    ? sections
+    : [{ heading: "Lesson reading", content: markdown }];
 }
 
 type DemoProfile = {
@@ -2931,32 +2948,24 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
     : isPhilosophicalLesson
       ? "Read for the question each thinker is answering, the evidence each view favors, and the limits that keep comparison honest."
       : "Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view.";
-  const lessonOutline = isCommunicationGlobalizationLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Language, culture, and access", "Worked examples", "Apply and transfer"]
-    : isVerbalNonVerbalMultimodalLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Modes and relationships", "Worked examples", "Apply and transfer"]
-    : isPrinciplesEthicsLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "The ethical decision loop", "Worked examples", "Apply and transfer"]
-    : isCommunicationLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Communication models", "Worked examples", "Apply and transfer"]
-    : isPsychologyLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Psychological lenses", "Worked examples", "Apply it and transfer"]
-    : isWesternEasternLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Western and Eastern lenses", "Worked examples", "Apply it and transfer"]
-    : isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isSociologyLesson || isAnthropologyLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"]
-    : isHistoricalAntecedentsLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "Historical pathways and evidence", "Worked examples", "Apply and transfer"]
-    : isStsLesson
-    ? ["Why this matters", "Vocabulary and key ideas", "The STS relationship", "Worked examples", "Apply and transfer"]
-    : isPhilosophicalLesson
-      ? ["Why this matters", "Vocabulary and key ideas", "Key philosophical perspectives", "Worked examples", "Apply it and transfer"]
-      : ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"];
+  const lessonSections = React.useMemo(() => parseLessonReaderSections(markdown), [markdown]);
+  const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const sectionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const safeSectionIndex = Math.min(activeSectionIndex, Math.max(lessonSections.length - 1, 0));
+  const activeSection = lessonSections[safeSectionIndex] ?? { heading: "Lesson reading", content: "" };
+  const isLastSection = safeSectionIndex === lessonSections.length - 1;
+  useEffect(() => {
+    setActiveSectionIndex(0);
+  }, [lesson.id]);
+  useEffect(() => {
+    sectionHeadingRef.current?.focus();
+  }, [safeSectionIndex]);
   const [note, setNote] = useState(() => window.localStorage.getItem(`aralivo-notes-${getProfile().email}`) ?? "");
   const [saved, setSaved] = useState(false);
   const completionState = useCompletionState();
   const lessonIsComplete = Boolean(completionState.lessons[lesson.id]);
   const [completed, setCompleted] = useState(lessonIsComplete);
+  const readingProgress = completed ? 100 : Math.round(((safeSectionIndex + 1) / lessonSections.length) * 100);
   const [completionStatus, setCompletionStatus] = useState("");
   const [reported, setReported] = useState(false);
   const noteKey = `aralivo-notes-${getProfile().email}`;
@@ -3020,39 +3029,72 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
         </div>
       </div>
       <div className="lesson-progress-row">
-        <span>Lesson progress</span>
-        <ProgressBar value={completed ? 100 : startingProgress} />
-        <strong>{completed ? 100 : startingProgress}%</strong>
+        <span>Reading progress</span>
+        <ProgressBar value={readingProgress} />
+        <strong>{readingProgress}%</strong>
         {saved && <span className="saved-message" role="status"><Check size={14} /> Saved</span>}
       </div>
       <div className="lesson-layout">
         <article className="reading-surface">
-          <div className="reading-intro">
+          {safeSectionIndex === 0 && <div className="reading-intro">
             <Pill tone="violet">{isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isCommunicationGlobalizationLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson ? "A 45-minute guided lesson" : isEthicsLesson ? "A 40-minute guided distinction" : isHistoricalAntecedentsLesson ? "A 45-minute guided history" : isStsLesson ? "A 40-minute STS introduction" : isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
             <p>{lessonIntro}</p>
+          </div>}
+          <div className="section-reader-heading">
+            <div>
+              <p className="eyebrow">Section {safeSectionIndex + 1} of {lessonSections.length}</p>
+              <h2 ref={sectionHeadingRef} tabIndex={-1}>{activeSection.heading}</h2>
+            </div>
+            <span className="section-reader-kicker">One screen, one idea</span>
           </div>
-          <LessonMarkdownContent markdown={markdown} />
-          <label className="note-field">
+          <LessonMarkdownContent markdown={activeSection.content} />
+          {isLastSection ? (
+            <>
+              <label className="note-field">
             <span>Your private note</span>
             <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Capture the thought you want to find later…" rows={5} />
             <small>Only you can see this note. It will not be included in receipts or emails.</small>
-          </label>
-          <div className="lesson-complete">
-            <div>
-              <Pill tone={completed ? "mint" : "violet"}>{completed ? "Lesson complete" : "Ready when you are"}</Pill>
-              <h3>{completed ? "Nice. The next useful step is practice." : "Finish with a quick practice set."}</h3>
-              <p>Retrieval is where this idea starts becoming yours.</p>
+              </label>
+              <div className="lesson-complete">
+                <div>
+                  <Pill tone={completed ? "mint" : "violet"}>{completed ? "Lesson complete" : "Ready when you are"}</Pill>
+                  <h3>{completed ? "Nice. The next useful step is practice." : "Finish with a quick practice set."}</h3>
+                  <p>Retrieval is where this idea starts becoming yours.</p>
+                </div>
+                <Link className="button button-dark" to={practiceSelectionPath(normalizePracticeSelection("lesson", lessonCourse.id, lessonUnit.id, lesson.id))}>
+                  Practice this lesson <ArrowRight size={17} />
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="lesson-section-navigation" aria-label="Lesson section controls">
+              <button
+                className="button button-quiet"
+                type="button"
+                onClick={() => setActiveSectionIndex((index) => Math.max(0, index - 1))}
+                disabled={safeSectionIndex === 0}
+              >
+                <ChevronLeft size={17} /> Previous
+              </button>
+              <span className="lesson-section-count" aria-live="polite">{safeSectionIndex + 1} / {lessonSections.length}</span>
+              <button className="button button-primary" type="button" onClick={() => setActiveSectionIndex((index) => Math.min(lessonSections.length - 1, index + 1))}>
+                Next section <ChevronRight size={17} />
+              </button>
             </div>
-            <Link className="button button-dark" to={practiceSelectionPath(normalizePracticeSelection("lesson", lessonCourse.id, lessonUnit.id, lesson.id))}>
-              Practice this lesson <ArrowRight size={17} />
-            </Link>
-          </div>
+          )}
         </article>
         <aside className="lesson-aside">
           <Card>
             <p className="eyebrow">In this lesson</p>
             <ul className="lesson-outline">
-              {lessonOutline.map((item, index) => <li className={index === 0 ? "active" : ""} key={item}><span /> {item}</li>)}
+              {lessonSections.map((section, index) => (
+                <li className={index === safeSectionIndex ? "active" : index < safeSectionIndex ? "done" : ""} key={section.heading}>
+                  <button type="button" onClick={() => setActiveSectionIndex(index)} aria-current={index === safeSectionIndex ? "step" : undefined}>
+                    <span className="lesson-outline-marker">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="lesson-outline-label">{section.heading}</span>
+                  </button>
+                </li>
+              ))}
             </ul>
           </Card>
           <Card className="source-card">

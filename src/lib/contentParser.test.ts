@@ -167,6 +167,21 @@ describe("content parser", () => {
     expect(result.ok).toBe(true);
     expect(result.value?.frontMatter.content_status).toBe("original");
     expect(result.value?.lineCount).toBeGreaterThanOrEqual(250);
+    expect(result.value?.sections.filter((section) => section.level === 2).map((section) => section.heading)).toEqual([
+      "Why this matters",
+      "Learning outcomes",
+      "Before you begin",
+      "Vocabulary",
+      "Key ideas",
+      "Worked example",
+      "Common confusions",
+      "Apply it",
+      "Recall",
+      "Reflection or transfer",
+      "Further study",
+      "Sources and provenance",
+      "Rights and originality",
+    ]);
     expect(result.issues).toHaveLength(0);
   });
 
