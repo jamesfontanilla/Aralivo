@@ -5,15 +5,25 @@ import json
 from datetime import datetime
 
 
-PUBLIC_RECEIPT_FIELDS = {"schema_version", "pseudonymous_learner_id", "content_identifier", "achievement_type", "completed_at", "issuer_public_key", "content_version", "network"}
+PUBLIC_RECEIPT_FIELDS = {
+    "schema_version",
+    "pseudonymous_learner_id",
+    "milestone_scope",
+    "content_identifier",
+    "achievement_type",
+    "completed_at",
+    "issuer_public_key",
+    "content_version",
+    "network",
+}
 
 
 def build_receipt_payload(data: dict) -> dict:
     completed_at = data["completed_at"]
     if isinstance(completed_at, datetime):
         completed_at = completed_at.isoformat()
-    return {
-        "schema_version": "1",
+    payload = {
+        "schema_version": data.get("schema_version", "1"),
         "pseudonymous_learner_id": hashlib.sha256(data["learner_identifier"].encode()).hexdigest()[:24],
         "content_identifier": data["content_identifier"],
         "achievement_type": data["achievement_type"],
@@ -22,6 +32,9 @@ def build_receipt_payload(data: dict) -> dict:
         "content_version": data["content_version"],
         "network": data.get("network", "testnet"),
     }
+    if data.get("milestone_scope"):
+        payload["milestone_scope"] = data["milestone_scope"]
+    return payload
 
 
 def hash_receipt_payload(payload: dict) -> str:

@@ -72,6 +72,7 @@ import cultureMoralBehaviorLessonMarkdown from "../data/seed/lessons/ethics/the-
 import communicationLessonMarkdown from "../data/seed/lessons/purposive-communication/communication-foundations/communication-processes-and-elements/lesson.md?raw";
 import principlesEthicsLessonMarkdown from "../data/seed/lessons/purposive-communication/communication-foundations/principles-and-ethics-of-communication/lesson.md?raw";
 import verbalNonVerbalMultimodalLessonMarkdown from "../data/seed/lessons/purposive-communication/communication-foundations/verbal-non-verbal-and-multimodal-communication/lesson.md?raw";
+import communicationGlobalizationLessonMarkdown from "../data/seed/lessons/purposive-communication/language-culture-and-audience/communication-and-globalization/lesson.md?raw";
 import stsLessonMarkdown from "../data/seed/lessons/science-technology-society/science-technology-and-social-change/what-are-science-technology-and-society/lesson.md?raw";
 import historicalAntecedentsLessonMarkdown from "../data/seed/lessons/science-technology-society/science-technology-and-social-change/historical-antecedents-of-science-and-technology/lesson.md?raw";
 import "./styles.css";
@@ -93,6 +94,8 @@ const communicationLessonId = "purposive-communication.communication-foundations
 const principlesEthicsLessonId = "purposive-communication.communication-foundations.principles-and-ethics-of-communication";
 const verbalNonVerbalMultimodalLessonId = "purposive-communication.communication-foundations.verbal-non-verbal-and-multimodal-communication";
 const communicationUnitId = "communication-foundations";
+const communicationGlobalizationLessonId = "purposive-communication.language-culture-and-audience.communication-and-globalization";
+const languageCultureAudienceUnitId = "language-culture-and-audience";
 const stsLessonId = "science-technology-society.science-technology-and-social-change.what-are-science-technology-and-society";
 const historicalAntecedentsLessonId = "science-technology-society.science-technology-and-social-change.historical-antecedents-of-science-and-technology";
 const stsUnitId = "science-technology-and-social-change";
@@ -165,8 +168,8 @@ const subjects = [
     color: "violet",
     icon: "P",
     progress: 0,
-    next: "Continue with Verbal, Non-Verbal, and Multimodal Communication",
-    lessons: 3,
+    next: "Start with Communication and Globalization",
+    lessons: 4,
   },
   {
     id: "art-appreciation",
@@ -251,6 +254,16 @@ const units: CourseUnit[] = [
     progress: 0,
     lessons: 3,
     duration: "135 min",
+    state: "current",
+  },
+  {
+    id: languageCultureAudienceUnitId,
+    subjectId: "purposive-communication",
+    title: "Language, Culture, and Audience",
+    label: "Unit 2",
+    progress: 0,
+    lessons: 1,
+    duration: "45 min",
     state: "current",
   },
   {
@@ -397,6 +410,16 @@ const lessons: CourseLesson[] = [
     outcome: "Compare words, embodied cues, and combined modes, then design a clear and accessible message.",
   },
   {
+    id: communicationGlobalizationLessonId,
+    unitId: languageCultureAudienceUnitId,
+    title: "Communication and Globalization",
+    eyebrow: "Lesson 1",
+    duration: "45 min",
+    state: "not-started",
+    progress: 0,
+    outcome: "Analyze how global connections change language, audiences, access, and responsibility, then design a culturally responsive message.",
+  },
+  {
     id: stsLessonId,
     unitId: stsUnitId,
     title: "What Are Science, Technology, and Society?",
@@ -498,6 +521,141 @@ function readStored<T>(key: string, fallback: T): T {
 
 function writeStored<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+type CompletionScope = "lesson" | "unit" | "course";
+
+type CompletionState = {
+  lessons: Record<string, string>;
+  units: Record<string, string>;
+  courses: Record<string, string>;
+};
+
+type ReceiptMilestone = {
+  scope: CompletionScope;
+  id: string;
+  contentIdentifier: string;
+  achievementType: `${CompletionScope}_completed`;
+};
+
+const COMPLETION_STATE_KEY = "aralivo-completions-v1";
+const completionListeners = new Set<() => void>();
+
+function getCompletionState(): CompletionState {
+  const stored = readStored<Partial<CompletionState>>(COMPLETION_STATE_KEY, {});
+  return {
+    lessons: stored.lessons ?? {},
+    units: stored.units ?? {},
+    courses: stored.courses ?? {},
+  };
+}
+
+function useCompletionState() {
+  const [state, setState] = useState<CompletionState>(() => getCompletionState());
+  useEffect(() => {
+    const listener = () => setState(getCompletionState());
+    completionListeners.add(listener);
+    return () => {
+      completionListeners.delete(listener);
+    };
+  }, []);
+  return state;
+}
+
+function persistCompletionState(state: CompletionState) {
+  writeStored(COMPLETION_STATE_KEY, state);
+  completionListeners.forEach((listener) => listener());
+}
+
+function milestoneFor(scope: CompletionScope, id: string): ReceiptMilestone {
+  return {
+    scope,
+    id,
+    contentIdentifier: `${scope}:${id}`,
+    achievementType: `${scope}_completed`,
+  };
+}
+
+function completedMilestones(state: CompletionState): ReceiptMilestone[] {
+  return [
+    ...Object.keys(state.courses).map((id) => milestoneFor("course", id)),
+    ...Object.keys(state.units).map((id) => milestoneFor("unit", id)),
+    ...Object.keys(state.lessons).map((id) => milestoneFor("lesson", id)),
+  ];
+}
+
+function markLessonCompleted(lessonId: string): ReceiptMilestone[] {
+  const lesson = lessons.find((item) => item.id === lessonId);
+  if (!lesson) return [];
+  const state = getCompletionState();
+  const next = {
+    lessons: { ...state.lessons },
+    units: { ...state.units },
+    courses: { ...state.courses },
+  };
+  const completedAt = new Date().toISOString();
+  const milestones: ReceiptMilestone[] = [];
+
+  if (!next.lessons[lesson.id]) {
+    next.lessons[lesson.id] = completedAt;
+    milestones.push(milestoneFor("lesson", lesson.id));
+  }
+
+  const unit = units.find((item) => item.id === lesson.unitId);
+  if (!unit) return milestones;
+  const unitLessons = lessonsForUnit(unit.id);
+  if (unitLessons.length > 0 && unitLessons.every((item) => next.lessons[item.id]) && !next.units[unit.id]) {
+    next.units[unit.id] = completedAt;
+    milestones.push(milestoneFor("unit", unit.id));
+  }
+
+  const courseUnits = unitsForCourse(unit.subjectId);
+  if (courseUnits.length > 0 && courseUnits.every((item) => next.units[item.id]) && !next.courses[unit.subjectId]) {
+    next.courses[unit.subjectId] = completedAt;
+    milestones.push(milestoneFor("course", unit.subjectId));
+  }
+
+  if (milestones.length > 0) persistCompletionState(next);
+  return milestones;
+}
+
+function markScopedMilestoneCompleted(scope: CompletionScope, id: string): ReceiptMilestone[] {
+  if (scope === "lesson") return markLessonCompleted(id);
+  const state = getCompletionState();
+  const next = {
+    lessons: { ...state.lessons },
+    units: { ...state.units },
+    courses: { ...state.courses },
+  };
+  const bucket = scope === "unit" ? next.units : next.courses;
+  if (bucket[id]) return [];
+  bucket[id] = new Date().toISOString();
+  const milestones = [milestoneFor(scope, id)];
+  if (scope === "unit") {
+    const unit = units.find((item) => item.id === id);
+    const courseUnits = unit ? unitsForCourse(unit.subjectId) : [];
+    if (unit && courseUnits.length > 0 && courseUnits.every((item) => next.units[item.id]) && !next.courses[unit.subjectId]) {
+      next.courses[unit.subjectId] = bucket[id];
+      milestones.push(milestoneFor("course", unit.subjectId));
+    }
+  }
+  persistCompletionState(next);
+  return milestones;
+}
+
+async function issueLearningReceipt(milestone: ReceiptMilestone) {
+  const idempotencyKey = `completion-${milestone.scope}-${milestone.id}-v2`;
+  return apiRequest<{ receipt: ReceiptRecord; payload_hash: string }>("/api/v1/receipts/issue", {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify({
+      scope: milestone.scope,
+      content_identifier: milestone.contentIdentifier,
+      achievement_type: milestone.achievementType,
+      content_version: "catalog-v1",
+      idempotency_key: idempotencyKey,
+    }),
+  });
 }
 
 function renderInlineLessonText(text: string, keyPrefix: string) {
@@ -604,6 +762,7 @@ type FocusSession = {
 type ReceiptRecord = {
   id: string;
   payload_hash: string;
+  milestone_scope: CompletionScope;
   content_identifier: string;
   achievement_type: string;
   completed_at: string;
@@ -2181,6 +2340,9 @@ function SubjectPage() {
   const { subjectId } = useParams();
   const subject = subjects.find((item) => item.id === subjectId) ?? subjects[0];
   const subjectUnits = units.filter((unit) => unit.subjectId === subject.id);
+  const completionState = useCompletionState();
+  const courseComplete = subjectUnits.length > 0 && subjectUnits.every((unit) => completionState.units[unit.id]);
+  const courseProgress = courseComplete ? 100 : subject.progress;
   return (
     <div className="page-stack">
       <nav className="content-breadcrumb" aria-label="Course breadcrumb">
@@ -2196,16 +2358,25 @@ function SubjectPage() {
           <p>Understand the ideas, practice the moves, keep what you learn.</p>
         </div>
         <div className="subject-hero-progress">
-          <strong>{subject.progress}%</strong>
+          <strong>{courseProgress}%</strong>
           <span>overall progress</span>
           <ProgressBar
-            value={subject.progress}
+            value={courseProgress}
             tone={
               subject.color === "mint" ? "mint" : subject.color === "coral" ? "coral" : "primary"
             }
           />
         </div>
       </div>
+      <Notice
+        tone={courseComplete ? "success" : "info"}
+        title={courseComplete ? "Course complete" : "Course receipt path"}
+        text={
+          courseComplete
+            ? "Every unit is complete. Your course milestone is ready in Learning receipts when receipts are enabled."
+            : "Complete every lesson in each unit and Aralivo will complete the unit and course milestones for you."
+        }
+      />
       <div className="subject-layout">
         <main>
           <SectionTitle
@@ -2258,6 +2429,8 @@ function SubjectPage() {
 }
 
 function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number }) {
+  const completionState = useCompletionState();
+  const complete = unit.state === "complete" || Boolean(completionState.units[unit.id]);
   const locked = unit.state === "locked";
   return (
     <Link
@@ -2265,8 +2438,8 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
       to={locked ? "#" : `/units/${unit.id}`}
       onClick={(event) => locked && event.preventDefault()}
     >
-      <div className={`unit-number ${unit.state}`}>
-        {unit.state === "complete" ? (
+      <div className={`unit-number ${complete ? "complete" : unit.state}`}>
+        {complete ? (
           <Check size={16} />
         ) : locked ? (
           <LockKeyhole size={15} />
@@ -2279,10 +2452,10 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
           <span className="eyebrow">{unit.label}</span>
           <Pill
             tone={
-              unit.state === "complete" ? "mint" : unit.state === "locked" ? "neutral" : "violet"
+              complete ? "mint" : unit.state === "locked" ? "neutral" : "violet"
             }
           >
-            {unit.state === "complete"
+            {complete
               ? "Complete"
               : unit.state === "locked"
                 ? "Locked"
@@ -2293,7 +2466,7 @@ function UnitRow({ unit, index }: { unit: (typeof units)[number]; index: number 
         <p>
           {unit.lessons} lessons · {unit.duration}
         </p>
-        <ProgressBar value={unit.progress} tone={unit.state === "complete" ? "mint" : "primary"} />
+        <ProgressBar value={complete ? 100 : unit.progress} tone={complete ? "mint" : "primary"} />
       </div>
       <ChevronRight className="unit-arrow" size={20} />
     </Link>
@@ -2311,6 +2484,9 @@ function UnitPage() {
   const isCommunicationUnit = unit.id === communicationUnitId;
   const isStsUnit = unit.id === stsUnitId;
   const hasNoPrerequisitesUnit = isEthicsUnit || isMoralAgentUnit || isCommunicationUnit || isStsUnit;
+  const completionState = useCompletionState();
+  const unitComplete = unit.state === "complete" || Boolean(completionState.units[unit.id]);
+  const unitProgress = unitComplete ? 100 : unit.progress;
   return (
     <div className="page-stack">
       <nav className="content-breadcrumb" aria-label="Unit breadcrumb">
@@ -2338,6 +2514,15 @@ function UnitPage() {
           <Link className="button button-primary" to={practiceSelectionPath(unitSelection)}>
             <Target size={16} /> Review unit · 30 items
           </Link>
+        }
+      />
+      <Notice
+        tone={unitComplete ? "success" : "info"}
+        title={unitComplete ? "Unit complete" : "Complete the lessons to finish this unit"}
+        text={
+          unitComplete
+            ? "The unit milestone has been recorded. View Learning receipts to verify it."
+            : `Finish all ${unitLessons.length} lessons in this unit and Aralivo will record the unit milestone automatically.`
         }
       />
       <div className="unit-overview-grid">
@@ -2380,10 +2565,10 @@ function UnitPage() {
         <Card>
           <p className="eyebrow">Unit progress</p>
           <div className="big-stat">
-            {unit.progress}
+            {unitProgress}
             <span>%</span>
           </div>
-          <ProgressBar value={unit.progress} tone="mint" />
+          <ProgressBar value={unitProgress} tone="mint" />
           <p className="muted-copy">
             {unitLessons.filter((l) => l.state !== "not-started").length} of {unitLessons.length}{" "}
             lessons touched
@@ -2404,7 +2589,7 @@ function UnitPage() {
             ? isMoralAgentUnit
               ? "There are no prerequisites. Bring one familiar or unfamiliar practice and ask what it means, who benefits, who bears the burden, and what reasons support it."
               : isStsUnit
-              ? "There are no prerequisites. Bring one ordinary technology or public system and ask what evidence, design choices, and social conditions shape it."
+              ? "Lesson 1 is a helpful companion, but there are no enforced prerequisites. Bring one ordinary technology or public system and ask what evidence, design choices, and social conditions shape it."
               : "There are no prerequisites. Bring one ordinary situation to the lesson and ask what the people involved needed to understand."
             : "You’ll get more from this unit if you can describe what makes a question observable. Revisit Operationalize the idea if you want a quick refresher."
         }
@@ -2647,9 +2832,12 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
   const isCommunicationLesson = lesson.id === communicationLessonId;
   const isPrinciplesEthicsLesson = lesson.id === principlesEthicsLessonId;
   const isVerbalNonVerbalMultimodalLesson = lesson.id === verbalNonVerbalMultimodalLessonId;
+  const isCommunicationGlobalizationLesson = lesson.id === communicationGlobalizationLessonId;
   const isStsLesson = lesson.id === stsLessonId;
   const isHistoricalAntecedentsLesson = lesson.id === historicalAntecedentsLessonId;
-  const markdown = isVerbalNonVerbalMultimodalLesson
+  const markdown = isCommunicationGlobalizationLesson
+    ? communicationGlobalizationLessonMarkdown
+    : isVerbalNonVerbalMultimodalLesson
     ? verbalNonVerbalMultimodalLessonMarkdown
     : isPrinciplesEthicsLesson
     ? principlesEthicsLessonMarkdown
@@ -2680,8 +2868,10 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       : lessonMarkdown;
   const lessonUnit = units.find((item) => item.id === lesson.unitId) ?? units[0];
   const lessonCourse = subjects.find((item) => item.id === lessonUnit.subjectId) ?? subjects[0];
-  const startingProgress = isPhilosophicalLesson || isSociologyLesson || isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isStsLesson || isHistoricalAntecedentsLesson ? 0 : 12;
-  const lessonIntro = isVerbalNonVerbalMultimodalLesson
+  const startingProgress = isPhilosophicalLesson || isSociologyLesson || isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isEthicsLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson || isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isCommunicationGlobalizationLesson || isStsLesson || isHistoricalAntecedentsLesson ? 0 : 12;
+  const lessonIntro = isCommunicationGlobalizationLesson
+    ? "Read for how global connection changes language, audience, access, representation, and the responsibility to invite correction."
+    : isVerbalNonVerbalMultimodalLesson
     ? "Read for the ways words, voice, movement, space, timing, visuals, sound, and layout work together to make a message usable."
     : isPrinciplesEthicsLesson
     ? "Read for the small choices that protect truth, dignity, fairness, privacy, access, and accountability across everyday messages."
@@ -2710,7 +2900,9 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
     : isPhilosophicalLesson
       ? "Read for the question each thinker is answering, the evidence each view favors, and the limits that keep comparison honest."
       : "Read for distinctions, not for a single final definition. The lesson will ask you to keep more than one useful lens in view.";
-  const lessonOutline = isVerbalNonVerbalMultimodalLesson
+  const lessonOutline = isCommunicationGlobalizationLesson
+    ? ["Why this matters", "Vocabulary and key ideas", "Language, culture, and access", "Worked examples", "Apply and transfer"]
+    : isVerbalNonVerbalMultimodalLesson
     ? ["Why this matters", "Vocabulary and key ideas", "Modes and relationships", "Worked examples", "Apply and transfer"]
     : isPrinciplesEthicsLesson
     ? ["Why this matters", "Vocabulary and key ideas", "The ethical decision loop", "Worked examples", "Apply and transfer"]
@@ -2731,9 +2923,32 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       : ["Why this matters", "Vocabulary and key ideas", "Worked examples", "Apply it", "Recall and transfer"];
   const [note, setNote] = useState(() => window.localStorage.getItem(`aralivo-notes-${getProfile().email}`) ?? "");
   const [saved, setSaved] = useState(false);
-  const [completed, setCompleted] = useState(false);
+  const completionState = useCompletionState();
+  const lessonIsComplete = Boolean(completionState.lessons[lesson.id]);
+  const [completed, setCompleted] = useState(lessonIsComplete);
+  const [completionStatus, setCompletionStatus] = useState("");
   const [reported, setReported] = useState(false);
   const noteKey = `aralivo-notes-${getProfile().email}`;
+  useEffect(() => setCompleted(lessonIsComplete), [lessonIsComplete]);
+  const completeLesson = async () => {
+    if (completed) return;
+    const milestones = markLessonCompleted(lesson.id);
+    setCompleted(true);
+    if (!getProfile().receiptsEnabled) {
+      setCompletionStatus("Lesson complete. Enable receipts to keep a private, verifiable record.");
+      return;
+    }
+    setCompletionStatus("Saving your lesson receipt…");
+    const results = await Promise.all(milestones.map((milestone) => issueLearningReceipt(milestone)));
+    const issuedCount = results.filter((result) => result?.receipt?.status === "issued").length;
+    setCompletionStatus(
+      issuedCount === milestones.length
+        ? milestones.length > 1
+          ? "Lesson complete. Unit and course milestones were recorded too."
+          : "Lesson complete. Your receipt is ready to verify."
+        : "Lesson complete. Your progress is safe; receipt syncing can be retried from Learning receipts.",
+    );
+  };
   const saveNote = () => {
     window.localStorage.setItem(noteKey, note);
     setSaved(true);
@@ -2763,7 +2978,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
           <p>{lesson.outcome}</p>
         </div>
         <div className="lesson-header-actions">
-          <button className="button button-primary" onClick={() => setCompleted(true)}>
+          <button className="button button-primary" onClick={() => void completeLesson()} disabled={completed}>
             {completed ? <CheckCircle2 size={17} /> : <Play size={17} />}
             {completed ? "Completed" : "Start lesson"}
           </button>
@@ -2782,7 +2997,7 @@ function SeedLessonPage({ lessonId }: { lessonId: string }) {
       <div className="lesson-layout">
         <article className="reading-surface">
           <div className="reading-intro">
-            <Pill tone="violet">{isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson ? "A 45-minute guided lesson" : isEthicsLesson ? "A 40-minute guided distinction" : isHistoricalAntecedentsLesson ? "A 45-minute guided history" : isStsLesson ? "A 40-minute STS introduction" : isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
+            <Pill tone="violet">{isCommunicationLesson || isPrinciplesEthicsLesson || isVerbalNonVerbalMultimodalLesson || isCommunicationGlobalizationLesson || isMoralDilemmasLesson || isFreedomLesson || isCultureMoralBehaviorLesson ? "A 45-minute guided lesson" : isEthicsLesson ? "A 40-minute guided distinction" : isHistoricalAntecedentsLesson ? "A 45-minute guided history" : isStsLesson ? "A 40-minute STS introduction" : isAnthropologyLesson || isPsychologyLesson || isWesternEasternLesson || isSociologyLesson || isPhilosophicalLesson ? "A 45-minute guided lesson" : "A 30-minute starting point"}</Pill>
             <p>{lessonIntro}</p>
           </div>
           <LessonMarkdownContent markdown={markdown} />
@@ -3264,6 +3479,28 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
         : [...values, value];
     });
   };
+  const finalizePractice = async () => {
+    const completionId =
+      selection.scope === "course"
+        ? selectedCourse.id
+        : selection.scope === "unit"
+          ? selectedUnit.id
+          : selectedLesson.id;
+    const milestones = markScopedMilestoneCompleted(selection.scope, completionId);
+    setComplete(true);
+    if (!getProfile().receiptsEnabled) {
+      setStatus(`${policy.label} complete. Enable receipts to keep a private, verifiable record.`);
+      return;
+    }
+    setStatus("Saving your completion receipt…");
+    const results = await Promise.all(milestones.map((milestone) => issueLearningReceipt(milestone)));
+    const issuedCount = results.filter((result) => result?.receipt?.status === "issued").length;
+    setStatus(
+      issuedCount === milestones.length
+        ? "Completion recorded. You can verify it from Learning receipts."
+        : "Completion saved. Receipt syncing can be retried from Learning receipts.",
+    );
+  };
   const submit = async () => {
     if (!hasAnswer || submitting) return;
     setSubmitting(true);
@@ -3287,7 +3524,7 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
         : "Response saved locally. Moving to the next question.",
     );
     setSubmitting(false);
-    if (current === items.length - 1) setComplete(true);
+    if (current === items.length - 1) void finalizePractice();
     else {
       const next = current + 1;
       setCurrent(next);
@@ -3320,6 +3557,11 @@ function PracticeQuestionnaire({ selection }: { selection: PracticeSelection }) 
           <Pill tone="mint">Practice complete</Pill>
           <h2>You added 35 XP.</h2>
           <p>All {items.length} responses were recorded for this practice set.</p>
+          {status && (
+            <div className="practice-status" role="status" aria-live="polite">
+              {status}
+            </div>
+          )}
           <div className="summary-stats">
             <div>
               <strong>{items.length} / {items.length}</strong>
@@ -4727,6 +4969,222 @@ function ResourcesPage() {
 }
 
 function ReceiptsPage() {
+  const profile = getProfile();
+  const completionState = useCompletionState();
+  const [optedIn, setOptedIn] = useState(Boolean(profile.receiptsEnabled));
+  const [stellarConfig, setStellarConfig] = useState<StellarConfig | null>(null);
+  const [receipts, setReceipts] = useState<ReceiptRecord[]>([]);
+  const [levelFilter, setLevelFilter] = useState<"all" | CompletionScope>("all");
+  const [loading, setLoading] = useState(true);
+  const [issuing, setIssuing] = useState(false);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void Promise.all([
+      apiRequest<StellarConfig>("/api/v1/config", { method: "GET" }),
+      apiRequest<{ receipts: ReceiptRecord[] }>("/api/v1/receipts", { method: "GET" }),
+    ]).then(([config, history]) => {
+      if (!active) return;
+      setStellarConfig(config);
+      if (history?.receipts) setReceipts(history.receipts);
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const savePreference = async (enabled: boolean) => {
+    setOptedIn(enabled);
+    writeStored("aralivo-profile", { ...profile, receiptsEnabled: enabled });
+    if (supabase) {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ receipts_enabled: enabled })
+          .eq("id", data.user.id);
+        if (error) {
+          setStatus("The preference could not be saved. Try again.");
+          return;
+        }
+      }
+    }
+    setStatus(enabled ? "Receipts enabled. New completions will be recorded automatically." : "Receipts turned off.");
+  };
+
+  const syncCompletedMilestones = async () => {
+    if (!stellarConfig?.stellar_enabled) {
+      setStatus("Stellar testnet is not configured on this deployment yet.");
+      return;
+    }
+    if (!optedIn) {
+      setStatus("Enable receipts before recording completed milestones.");
+      return;
+    }
+    const known = new Set(receipts.map((receipt) => receipt.content_identifier));
+    const pendingMilestones = completedMilestones(completionState).filter(
+      (milestone) => !known.has(milestone.contentIdentifier),
+    );
+    if (pendingMilestones.length === 0) {
+      setStatus("All completed milestones are already recorded.");
+      return;
+    }
+    setIssuing(true);
+    setStatus(`Saving ${pendingMilestones.length} completion${pendingMilestones.length === 1 ? "" : "s"}…`);
+    const results = await Promise.all(pendingMilestones.map((milestone) => issueLearningReceipt(milestone)));
+    const issued = results.flatMap((result) => (result?.receipt ? [result.receipt] : []));
+    if (issued.length > 0) {
+      setReceipts((current) => [
+        ...issued,
+        ...current.filter((receipt) => !issued.some((item) => item.id === receipt.id)),
+      ]);
+    }
+    setIssuing(false);
+    setStatus(
+      issued.length === pendingMilestones.length
+        ? "All completed milestones are ready to verify."
+        : "Some milestones are saved locally and can be retried here.",
+    );
+  };
+
+  const receiptScope = (receipt: ReceiptRecord): CompletionScope => {
+    if (receipt.milestone_scope) return receipt.milestone_scope;
+    if (receipt.achievement_type.startsWith("lesson")) return "lesson";
+    if (receipt.achievement_type.startsWith("unit")) return "unit";
+    return "course";
+  };
+  const visibleReceipts = receipts.filter((receipt) => levelFilter === "all" || receiptScope(receipt) === levelFilter);
+  const scopeCounts = (Object.keys({ lesson: true, unit: true, course: true }) as CompletionScope[]).map((scope) => ({
+    scope,
+    count: receipts.filter((receipt) => receiptScope(receipt) === scope).length,
+  }));
+  const networkLabel = stellarConfig?.stellar_network === "public" ? "Stellar public" : "Stellar testnet";
+  const levelLabel: Record<CompletionScope, string> = { lesson: "Lessons", unit: "Units", course: "Courses" };
+
+  return (
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Private proof, if you want it"
+        title="Learning receipts"
+        description="A verifiable record for every completed lesson, unit, and course."
+        action={
+          <Pill tone={stellarConfig?.stellar_enabled ? "mint" : "neutral"}>
+            {stellarConfig?.stellar_enabled ? networkLabel : "Testnet not configured"}
+          </Pill>
+        }
+      />
+      <Card className="receipt-hero">
+        <div className="receipt-hero-icon">
+          <ShieldCheck size={25} />
+        </div>
+        <div>
+          <p className="eyebrow">Privacy-safe by design</p>
+          <h2>Keep the milestones that matter.</h2>
+          <p>
+            Aralivo stores each readable receipt privately and anchors only its hash in Stellar account data.
+            Your name, email, notes, answers, and school records never go on-chain.
+          </p>
+          <p className="receipt-hero-note">
+            {optedIn ? "New completions will be recorded automatically." : "Nothing is shared until you opt in."}
+          </p>
+        </div>
+        <button
+          className={optedIn ? "button button-quiet" : "button button-dark"}
+          onClick={() => void savePreference(!optedIn)}
+          disabled={loading}
+        >
+          {optedIn ? "Turn off receipts" : "Enable receipts"}
+        </button>
+      </Card>
+      {status && (
+        <div className="practice-status" role="status" aria-live="polite">
+          {status}
+        </div>
+      )}
+      <div className="receipts-layout">
+        <Card>
+          <SectionTitle
+            title="Your receipt history"
+            action={
+              <button
+                className="button button-quiet"
+                onClick={() => void syncCompletedMilestones()}
+                disabled={!optedIn || issuing || !stellarConfig?.stellar_enabled}
+              >
+                {issuing ? "Saving…" : "Record completed milestones"}
+              </button>
+            }
+          />
+          <div className="receipt-filter" role="group" aria-label="Filter receipts by completion level">
+            <button className={levelFilter === "all" ? "is-active" : ""} aria-pressed={levelFilter === "all"} onClick={() => setLevelFilter("all")}>All <span>{receipts.length}</span></button>
+            {scopeCounts.map(({ scope, count }) => (
+              <button key={scope} className={levelFilter === scope ? "is-active" : ""} aria-pressed={levelFilter === scope} onClick={() => setLevelFilter(scope)}>
+                {levelLabel[scope]} <span>{count}</span>
+              </button>
+            ))}
+          </div>
+          {!optedIn ? (
+            <div className="empty-inline">
+              <ShieldCheck size={22} />
+              <strong>Receipts are off.</strong>
+              <p>Enable receipts to automatically record lesson, unit, and course completions.</p>
+            </div>
+          ) : visibleReceipts.length > 0 ? (
+            <div className="receipt-history-list">
+              {visibleReceipts.map((receipt) => (
+                <div className="receipt-item" key={receipt.id}>
+                  <div className="receipt-item-icon">
+                    {receipt.status === "issued" ? <CheckCircle2 size={18} /> : <ShieldCheck size={18} />}
+                  </div>
+                  <div>
+                    <strong>{levelLabel[receiptScope(receipt)]} complete</strong>
+                    <p translate="no">
+                      {receipt.content_identifier} · {receipt.network} · {receipt.status}
+                    </p>
+                    <code translate="no">{receipt.payload_hash.slice(0, 16)}…</code>
+                  </div>
+                  {receipt.verification_url && receipt.status === "issued" ? (
+                    <a className="text-link" href={receipt.verification_url} target="_blank" rel="noreferrer">
+                      Verify <ExternalLink size={14} />
+                    </a>
+                  ) : (
+                    <Pill tone="neutral">{receipt.status}</Pill>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-inline">
+              <ShieldCheck size={22} />
+              <strong>{levelFilter === "all" ? "No receipts yet." : `No ${levelLabel[levelFilter].toLowerCase()} receipts yet.`}</strong>
+              <p>Complete a milestone and Aralivo will keep its private proof here.</p>
+            </div>
+          )}
+        </Card>
+        <Card>
+          <p className="eyebrow">Three levels, one privacy boundary</p>
+          <ul className="check-list">
+            <li><CheckCircle2 size={16} /> lesson completion</li>
+            <li><CheckCircle2 size={16} /> unit completion</li>
+            <li><CheckCircle2 size={16} /> course completion</li>
+            <li><X size={16} className="list-no" /> private notes or answers</li>
+            <li><X size={16} className="list-no" /> name, email, or school records</li>
+          </ul>
+          <p className="muted-copy receipt-explainer">
+            Complete every lesson in a unit to complete the unit. Complete every unit in a course to complete the course.
+          </p>
+          <Link className="text-link" to="/settings#privacy">
+            Read the privacy note <ArrowRight size={14} />
+          </Link>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ReceiptsPageLegacyPlaceholder() {
   const profile = getProfile();
   const [optedIn, setOptedIn] = useState(Boolean(profile.receiptsEnabled));
   const [stellarConfig, setStellarConfig] = useState<StellarConfig | null>(null);

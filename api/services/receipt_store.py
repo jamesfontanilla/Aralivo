@@ -81,7 +81,7 @@ async def list_for_user(user_id: str) -> list[dict[str, Any]]:
     url, service_key = configured
     return await _request(
         "GET",
-        f"{url}?select=id,payload_hash,content_identifier,achievement_type,completed_at,issuer_public_key,content_version,network,transaction_hash,verification_url,status,created_at&user_id=eq.{quote(user_id)}&order=created_at.desc",
+        f"{url}?select=id,payload_hash,milestone_scope,content_identifier,achievement_type,completed_at,issuer_public_key,content_version,network,transaction_hash,verification_url,status,created_at&user_id=eq.{quote(user_id)}&order=created_at.desc",
         service_key,
     )
 

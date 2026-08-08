@@ -42,6 +42,24 @@ def test_receipt_hash_is_stable_and_privacy_safe():
     assert hash_receipt_payload(payload) == hash_receipt_payload(dict(payload))
 
 
+def test_receipt_milestone_scope_is_hashable_but_private_fields_stay_out():
+    payload = build_receipt_payload({
+        "schema_version": "2",
+        "milestone_scope": "unit",
+        "learner_identifier": "user-secret",
+        "content_identifier": "unit:ethics.foundations",
+        "achievement_type": "unit_completed",
+        "completed_at": datetime(2026, 8, 7, tzinfo=timezone.utc),
+        "issuer_public_key": "GISSUER",
+        "content_version": "catalog-v1",
+        "network": "testnet",
+        "private_note": "never",
+    })
+    assert payload["milestone_scope"] == "unit"
+    assert "private_note" not in payload
+    assert hash_receipt_payload(payload) != hash_receipt_payload({**payload, "milestone_scope": "course"})
+
+
 def test_lesson_validator_rejects_hidden_answers():
     issues = validate_lesson_markdown("---\nquoted_text: false\n---\n<!-- answer key -->")
     assert any(issue.code == "ANSWER_KEY_HIDDEN" for issue in issues)

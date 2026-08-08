@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
+from typing import Literal
 from uuid import uuid4
 
 from fastapi import FastAPI, Header, Query, Request
@@ -80,6 +81,7 @@ class ReceiptRequest(BaseModel):
 
 
 class ReceiptIssueRequest(BaseModel):
+    scope: Literal["lesson", "unit", "course"] = "course"
     content_identifier: str = Field(min_length=1, max_length=240)
     achievement_type: str = Field(min_length=1, max_length=80)
     content_version: str = Field(min_length=1, max_length=80)
@@ -105,6 +107,7 @@ CULTURE_MORAL_BEHAVIOR_LESSON_ID = "ethics.the-moral-agent.culture-and-moral-beh
 COMMUNICATION_LESSON_ID = "purposive-communication.communication-foundations.communication-processes-and-elements"
 PRINCIPLES_ETHICS_LESSON_ID = "purposive-communication.communication-foundations.principles-and-ethics-of-communication"
 VERBAL_NONVERBAL_MULTIMODAL_LESSON_ID = "purposive-communication.communication-foundations.verbal-non-verbal-and-multimodal-communication"
+COMMUNICATION_GLOBALIZATION_LESSON_ID = "purposive-communication.language-culture-and-audience.communication-and-globalization"
 STS_LESSON_ID = "science-technology-society.science-technology-and-social-change.what-are-science-technology-and-society"
 HISTORICAL_ANTECEDENTS_LESSON_ID = "science-technology-society.science-technology-and-social-change.historical-antecedents-of-science-and-technology"
 SEED_QUESTIONS_ROOT = (
@@ -129,6 +132,7 @@ SEED_QUESTION_PATHS = {
     COMMUNICATION_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "communication-foundations" / "communication-processes-and-elements" / "questions.json",
     PRINCIPLES_ETHICS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "communication-foundations" / "principles-and-ethics-of-communication" / "questions.json",
     VERBAL_NONVERBAL_MULTIMODAL_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "communication-foundations" / "verbal-non-verbal-and-multimodal-communication" / "questions.json",
+    COMMUNICATION_GLOBALIZATION_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "purposive-communication" / "language-culture-and-audience" / "communication-and-globalization" / "questions.json",
     STS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "science-technology-society" / "science-technology-and-social-change" / "what-are-science-technology-and-society" / "questions.json",
     HISTORICAL_ANTECEDENTS_LESSON_ID: Path(__file__).resolve().parents[1] / "data" / "seed" / "questions" / "science-technology-society" / "science-technology-and-social-change" / "historical-antecedents-of-science-and-technology" / "questions.json",
 }
@@ -315,6 +319,21 @@ async def receipt_issue(
     user = await require_user(authorization)
     if not user:
         return error_response(rid, "UNAUTHORIZED", "Sign in to issue a receipt.")
+    expected_prefix = f"{payload.scope}:"
+    if not payload.content_identifier.startswith(expected_prefix):
+        return error_response(
+            rid,
+            "INVALID_RECEIPT_SCOPE",
+            f"The content identifier must start with {expected_prefix}.",
+            status_code=422,
+        )
+    if payload.achievement_type.endswith("_completed") and payload.achievement_type != f"{payload.scope}_completed":
+        return error_response(
+            rid,
+            "INVALID_RECEIPT_ACHIEVEMENT",
+            "The achievement type does not match the receipt scope.",
+            status_code=422,
+        )
     if not is_stellar_ready():
         return error_response(
             rid,
@@ -338,34 +357,40 @@ async def receipt_issue(
         if existing and existing.get("status") == "issued":
             return {"receipt": existing, "payload_hash": existing.get("payload_hash"), "replayed": True}
 
-        stellar_config = get_stellar_config()
-        receipt = build_receipt_payload(
-            {
-                "learner_identifier": user_id,
-                "content_identifier": payload.content_identifier,
-                "achievement_type": payload.achievement_type,
-                "completed_at": datetime.now(timezone.utc),
-                "issuer_public_key": stellar_config.issuer_public_key,
-                "content_version": payload.content_version,
-                "network": stellar_config.network,
-            }
-        )
-        payload_hash = hash_receipt_payload(receipt)
-        existing_hash = await find_by_hash(user_id, payload_hash)
-        if existing_hash and existing_hash.get("status") == "issued":
-            return {"receipt": existing_hash, "payload_hash": payload_hash, "replayed": True}
+        if existing:
+            pending = existing
+            payload_hash = str(existing["payload_hash"])
+        else:
+            stellar_config = get_stellar_config()
+            receipt = build_receipt_payload(
+                {
+                    "schema_version": "2",
+                    "milestone_scope": payload.scope,
+                    "learner_identifier": user_id,
+                    "content_identifier": payload.content_identifier,
+                    "achievement_type": payload.achievement_type,
+                    "completed_at": datetime.now(timezone.utc),
+                    "issuer_public_key": stellar_config.issuer_public_key,
+                    "content_version": payload.content_version,
+                    "network": stellar_config.network,
+                }
+            )
+            payload_hash = hash_receipt_payload(receipt)
+            existing_hash = await find_by_hash(user_id, payload_hash)
+            if existing_hash and existing_hash.get("status") == "issued":
+                return {"receipt": existing_hash, "payload_hash": payload_hash, "replayed": True}
 
-        pending = await create_pending(
-            {
-                "user_id": user_id,
-                "idempotency_key": payload.idempotency_key,
-                "payload_hash": payload_hash,
-                **receipt,
-                "status": "pending",
-            }
-        )
-        if pending.get("status") == "issued":
-            return {"receipt": pending, "payload_hash": payload_hash, "replayed": True}
+            pending = await create_pending(
+                {
+                    "user_id": user_id,
+                    "idempotency_key": payload.idempotency_key,
+                    "payload_hash": payload_hash,
+                    **receipt,
+                    "status": "pending",
+                }
+            )
+            if pending.get("status") == "issued":
+                return {"receipt": pending, "payload_hash": payload_hash, "replayed": True}
 
         anchor = issue_receipt_anchor(payload_hash)
         issued = await mark_issued(str(pending["id"]), anchor)

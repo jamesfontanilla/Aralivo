@@ -25,4 +25,4 @@ Implemented endpoints:
 - `POST /api/v1/content/validate/lesson`
 - `POST /api/v1/content/validate/questions`
 
-Assessment selection returns safe learner fields only. Submissions, focus completion, XP, receipt issuance, calendar creation, and offline mutations must carry idempotency keys. Retries return the existing result. Receipt issuance stores the readable record privately and anchors only its SHA-256 hash in a server-controlled Stellar account data entry.
+Assessment selection returns safe learner fields only. Submissions, focus completion, XP, receipt issuance, calendar creation, and offline mutations must carry idempotency keys. Retries return the existing result. Receipt issuance accepts `scope: lesson | unit | course`; the readable record stays private and only its SHA-256 hash is anchored in a server-controlled Stellar account data entry. Completing a lesson can cascade to its unit and course when all child content is complete.
